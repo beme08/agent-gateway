@@ -1,0 +1,13 @@
+# Snippet to add to ~/.codex/config.toml to register the Supabase MCP for
+# Codex. Place your project ref + personal access token in ~/.codex/.env
+# (or export them in your shell) and Codex will inject them.
+
+[mcp_servers.supabase]
+command = "npx"
+args = [
+  "-y",
+  "@supabase/mcp-server-supabase",
+  "--read-only",
+  "--project-ref=${SUPABASE_PROJECT_REF}",
+]
+env = { "SUPABASE_ACCESS_TOKEN" = "${SUPABASE_ACCESS_TOKEN}" }
