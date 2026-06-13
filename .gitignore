@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+*.tsbuildinfo
+
+# Env
+.env
+.env.local
+.env.*.local
+apps/web/.env
+apps/api/.env
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Testing
+coverage/
+.nyc_output/
+.pytest_cache/
+.tox/
+.cache/
+
+# Supabase
+supabase/.branches
+supabase/.temp
+
+# Misc
+*.pid
+*.seed
+*.pid.lock
