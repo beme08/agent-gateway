@@ -4,6 +4,12 @@ A deployed, multi-tenant agentic AI platform with a flagship **HR Policy Agent**
 
 > **Launch mode**: public demo with seeded tenants and "Try as…" role buttons. Not a real self-serve SaaS yet. See [Launch Strategy](docs/launch.md).
 
+## 🚀 Live public demo
+
+**https://agent-gateway-qdauk3e09-beme08s-projects.vercel.app**
+
+Web tier deployed to Vercel. All four "Try as …" flows verified end-to-end against the live Supabase project (`dabksbszhwqnpglattvb`). See [docs/live-demo.md](docs/live-demo.md) for the 60-second walkthrough, verified screenshots, and deployment status.
+
 ## Stack
 
 - **Frontend**: Next.js 14 (App Router) + Tailwind
