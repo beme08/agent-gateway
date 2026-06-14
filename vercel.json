@@ -1,10 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/vercel.json",
-  "buildCommand": "cd ../.. && npm run build:web",
-  "installCommand": "cd ../.. && npm install",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": "apps/web/.next",
-  "rewrites": [
-    { "source": "/api/agent/(.*)", "destination": "https://AGENT_API_URL/v1/agent/$1" }
-  ]
+  "outputDirectory": ".next"
 }
