@@ -70,28 +70,26 @@ async function main() {
     const ids: Record<string, string> = {};
     for (const r of ROLES) {
       const email = `${r.emailPrefix}@${tenant.slug}.test`;
-      ids[r.role] = await ensureAuthUser(email, r.fullName);
+      ids[r.emailPrefix] = await ensureAuthUser(email, r.fullName);
       // Mirror into public.users
       const { error: upErr } = await supabase
         .from('users')
-        .upsert({ id: ids[r.role], email, full_name: r.fullName });
+        .upsert({ id: ids[r.emailPrefix], email, full_name: r.fullName });
       if (upErr) throw upErr;
       credentials.push({ tenant: tenant.slug, role: r.role, email, password: PASSWORD });
     }
 
     const managerId = ids.manager;
-    const employeeId = ids.employee;
-    const employee2Id = ids.employee2;
 
     // Tenant memberships
     for (const r of ROLES) {
-      const managerFk = r.role === 'employee' || r.role === 'employee2' ? managerId : null;
+      const managerFk = r.emailPrefix === 'employee' || r.emailPrefix === 'employee2' ? managerId : null;
       const { error } = await supabase
         .from('tenant_memberships')
         .upsert(
           {
             tenant_id: tenant.id,
-            user_id: ids[r.role],
+            user_id: ids[r.emailPrefix],
             role: r.role,
             manager_user_id: managerFk,
           },
@@ -100,15 +98,15 @@ async function main() {
       if (error) throw error;
     }
 
-    // Leave balances
+    // Leave balances (employees only)
     const allocations: Record<string, number> = { vacation: 20, sick: 10, personal: 5 };
     for (const r of ROLES) {
-      if (r.role === 'viewer' || r.role === 'admin' || r.role === 'manager') continue;
+      if (r.role !== 'employee') continue;
       for (const [leaveType, days] of Object.entries(allocations)) {
         const { error } = await supabase.from('leave_balances').upsert(
           {
             tenant_id: tenant.id,
-            user_id: ids[r.role],
+            user_id: ids[r.emailPrefix],
             leave_type: leaveType,
             year: CURRENT_YEAR,
             allocated_days: days,
