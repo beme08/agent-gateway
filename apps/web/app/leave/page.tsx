@@ -4,6 +4,32 @@ import { createClient } from "@/lib/supabase/server";
 import { BalanceCard } from "@/components/balance-card";
 import { createLeaveRequest, cancelLeaveRequest } from "@/lib/leave-actions";
 
+function ReasonPresetScript() {
+  // Tiny client component: if the user picks a preset reason, copy it into
+  // the free-text reason field unless the user has already typed something.
+  return (
+    <script
+      dangerouslySetInnerHTML={{
+        __html: `
+(function(){
+  var preset = document.getElementById('reason_preset');
+  var text = document.getElementById('reason');
+  if (!preset || !text) return;
+  preset.addEventListener('change', function(){
+    if (preset.value && preset.value !== '__custom__' && (!text.value || text.dataset.touched !== '1')) {
+      text.value = preset.value;
+    } else if (preset.value === '__custom__') {
+      text.focus();
+    }
+  });
+  text.addEventListener('input', function(){ text.dataset.touched = '1'; });
+})();
+        `,
+      }}
+    />
+  );
+}
+
 export default async function LeavePage() {
   const session = await getSession();
   if (!session) redirect("/");
@@ -63,29 +89,50 @@ export default async function LeavePage() {
           });
         }} className="grid sm:grid-cols-4 gap-3">
           <div>
-            <label className="label">Type</label>
-            <select name="leave_type" className="input" defaultValue="vacation">
-              <option value="vacation">Vacation</option>
-              <option value="sick">Sick</option>
-              <option value="personal">Personal</option>
+            <label className="label" htmlFor="leave_type">Type of leave</label>
+            <select id="leave_type" name="leave_type" className="input" defaultValue="vacation">
+              <option value="vacation">Vacation — paid time off</option>
+              <option value="pto">PTO — flexible paid time off</option>
+              <option value="sick">Sick leave</option>
+              <option value="bereavement">Bereavement — loss of a loved one</option>
+              <option value="personal">Personal day</option>
+              <option value="parental">Parental leave</option>
+              <option value="jury">Jury duty / civic leave</option>
+              <option value="unpaid">Unpaid leave</option>
             </select>
           </div>
           <div>
-            <label className="label">Start</label>
-            <input name="start_date" type="date" required className="input" />
+            <label className="label" htmlFor="start_date">Start date</label>
+            <input id="start_date" name="start_date" type="date" required className="input" />
           </div>
           <div>
-            <label className="label">End</label>
-            <input name="end_date" type="date" required className="input" />
+            <label className="label" htmlFor="end_date">End date</label>
+            <input id="end_date" name="end_date" type="date" required className="input" />
           </div>
           <div>
-            <label className="label">Reason</label>
-            <input name="reason" className="input" placeholder="optional" />
+            <label className="label" htmlFor="reason">Reason</label>
+            <select id="reason_preset" name="reason_preset" className="input mb-2" defaultValue="">
+              <option value="">— pick a common reason (optional) —</option>
+              <option value="Family vacation">Family vacation</option>
+              <option value="Personal travel">Personal travel</option>
+              <option value="Medical appointment">Medical appointment</option>
+              <option value="Sick — flu / cold">Sick — flu / cold</option>
+              <option value="Sick — doctor’s note">Sick — doctor’s note</option>
+              <option value="Bereavement — family member">Bereavement — family member</option>
+              <option value="Bereavement — close friend">Bereavement — close friend</option>
+              <option value="Jury duty">Jury duty</option>
+              <option value="Parental leave — birth">Parental leave — birth</option>
+              <option value="Parental leave — bonding">Parental leave — bonding</option>
+              <option value="Unused time off / carryover">Unused time off / carryover</option>
+              <option value="__custom__">Other (write your own)</option>
+            </select>
+            <input id="reason" name="reason" className="input" placeholder="Short note for your manager (optional)" />
           </div>
           <div className="sm:col-span-4">
             <button className="btn-primary">Submit request</button>
           </div>
         </form>
+        <ReasonPresetScript />
       </section>
 
       <section>

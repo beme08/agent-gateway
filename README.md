@@ -1,6 +1,6 @@
 # Secure Enterprise Agent Gateway
 
-A deployed, multi-tenant agentic AI platform with a flagship **HR Policy Agent** that answers company policy questions with ACL-filtered RAG and performs sick-leave / PTO workflows through role-gated tools. Uses Supabase RLS for tenant isolation, server-side tool authorization, prompt-injection defense-in-depth, and full audit traces.
+A deployed, multi-tenant agentic AI platform with a flagship **HR Policy Agent** that answers company policy questions with ACL-filtered RAG and performs sick-leave, PTO, bereavement, parental, jury duty, and unpaid time-off workflows through role-gated tools. Uses Supabase RLS for tenant isolation, server-side tool authorization, prompt-injection defense-in-depth, and full audit traces.
 
 > **Launch mode**: public demo with seeded tenants and "Try as…" role buttons. Not a real self-serve SaaS yet. See [Launch Strategy](docs/launch.md).
 

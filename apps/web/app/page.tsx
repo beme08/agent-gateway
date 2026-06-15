@@ -1,49 +1,40 @@
 import { signInAsDemoUser } from "@/lib/demo-auth";
 
+// Role cards for the demo. We do NOT use fictional names, faces, or quotes
+// anywhere in the public demo. The "photo" slots are clearly framed
+// placeholders so a real customer can drop in a real team photo later.
 const ROLES = [
   {
     id: "employee",
     label: "Employee",
-    fullName: "Sam Patel",
-    title: "Software Engineer · Acme Corp",
+    title: "Acme Corp · Employee role",
     description:
-      "Ask the HR agent about sick leave, vacation balance, and remote work policy. Submit a leave request in chat.",
+      "Ask the HR agent about vacation, sick, bereavement, and personal time. Submit a leave request in chat and watch it land on your manager's queue.",
     accent: "from-indigo-500 to-indigo-600",
-    initialsBg: "bg-indigo-100 text-indigo-700",
-    initials: "SP",
   },
   {
     id: "manager",
     label: "Manager",
-    fullName: "Riya Chen",
-    title: "Engineering Manager · Acme Corp",
+    title: "Acme Corp · Manager role",
     description:
-      "See your team's pending requests, approve or reject sick leave and PTO. Every decision is audit-traced.",
+      "See your team's pending requests, approve or reject them. Every decision is audit-traced and tied to a verifiable tool call.",
     accent: "from-emerald-500 to-emerald-600",
-    initialsBg: "bg-emerald-100 text-emerald-700",
-    initials: "RC",
   },
   {
     id: "admin",
     label: "Admin",
-    fullName: "Alex Morgan",
-    title: "Workplace Operations Lead · Acme Corp",
+    title: "Acme Corp · Admin role",
     description:
-      "Open the audit dashboard: per-tenant usage, every chat trace, every blocked prompt-injection event.",
+      "Open the audit dashboard: per-tenant usage, every chat trace, every blocked prompt-injection event. Reset the demo data with one click.",
     accent: "from-rose-500 to-rose-600",
-    initialsBg: "bg-rose-100 text-rose-700",
-    initials: "AM",
   },
   {
     id: "viewer",
     label: "Viewer",
-    fullName: "Jordan Lee",
-    title: "New Hire · Acme Corp",
+    title: "Acme Corp · Read-only role",
     description:
-      "Read-only access. Confirms the ACL filter blocks executive compensation content from the prompt.",
+      "Read-only access. Confirms the ACL filter blocks executive compensation content from the prompt, while still retrieving the public policy docs.",
     accent: "from-slate-500 to-slate-600",
-    initialsBg: "bg-slate-100 text-slate-700",
-    initials: "JL",
   },
 ] as const;
 
@@ -73,6 +64,26 @@ const FEATURES = [
   },
 ];
 
+// HR-flavored use cases. Neutral copy, no quotes, no customer names, no logos.
+const USE_CASES = [
+  {
+    title: "Onboarding Q&A",
+    body: "New hires ask about benefits, payroll cycles, equipment, and travel policy in plain English and get citations from the actual handbook.",
+  },
+  {
+    title: "Time-off filing",
+    body: "Employees file vacation, sick, bereavement, parental, jury duty, and PTO carryover requests from chat or the web app. No email back-and-forth.",
+  },
+  {
+    title: "Manager approvals",
+    body: "Managers see their team's pending requests, approve or reject with one click, and every decision is recorded against the original chat trace.",
+  },
+  {
+    title: "Audit & compliance",
+    body: "Admins review per-tenant usage, every tool call, every blocked prompt-injection event, and export an immutable log for security review.",
+  },
+];
+
 export default function LandingPage() {
   return (
     <main className="bg-canvas">
@@ -80,7 +91,7 @@ export default function LandingPage() {
       <TrustStrip />
       <Personas />
       <Features />
-      <Testimonial />
+      <UseCases />
       <ArchitectureNotes />
       <WaitlistCTA />
       <SiteFooter />
@@ -105,8 +116,9 @@ function Hero() {
           </h1>
           <p className="mt-5 text-lg text-muted max-w-2xl">
             A multi-tenant agentic AI platform where an HR Policy Agent answers policy questions with
-            ACL-filtered retrieval, performs sick leave and PTO through role-gated tools, and records
-            every retrieval and decision to an immutable audit trail.
+            ACL-filtered retrieval, files time-off requests (vacation, PTO, sick, bereavement, parental,
+            personal, jury duty, unpaid leave) through role-gated tools, and records every retrieval
+            and decision to an immutable audit trail.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a
@@ -252,15 +264,10 @@ function Personas() {
             }}
             className="group relative rounded-xl border border-slate-line bg-white p-5 shadow-card hover:shadow-card-hover transition flex flex-col"
           >
-            <div className="flex items-center gap-3">
-              <PersonAvatar initials={r.initials} bg={r.initialsBg} />
-              <div className="min-w-0">
-                <div className="text-xs uppercase tracking-wider text-muted">{r.label}</div>
-                <div className="font-semibold text-ink truncate">{r.fullName}</div>
-              </div>
-            </div>
-            <div className="mt-2 text-xs text-muted truncate">{r.title}</div>
-            <p className="mt-4 text-sm text-ink/80 leading-relaxed flex-1">{r.description}</p>
+            <PhotoPlaceholder role={r.id} />
+            <div className="mt-4 text-xs uppercase tracking-wider text-muted">{r.label}</div>
+            <div className="font-semibold text-ink">{r.title}</div>
+            <p className="mt-3 text-sm text-ink/80 leading-relaxed flex-1">{r.description}</p>
             <button
               type="submit"
               className={`mt-5 inline-flex items-center justify-between gap-2 rounded-md bg-gradient-to-r ${r.accent} px-4 py-2 text-sm font-semibold text-white shadow-card hover:opacity-95`}
@@ -282,13 +289,39 @@ function Personas() {
   );
 }
 
-function PersonAvatar({ initials, bg }: { initials: string; bg: string }) {
+// Non-person photo placeholder. No human likeness anywhere on the landing
+// page — this is clearly a "drop a real team photo here" slot. The dashed
+// border + icon + caption make it obvious to the visitor.
+function PhotoPlaceholder({ role }: { role: string }) {
+  const captions: Record<string, string> = {
+    employee: "Add an employee portrait",
+    manager: "Add a manager portrait",
+    admin: "Add an admin portrait",
+    viewer: "Add a viewer portrait",
+  };
   return (
     <div
-      className={`h-11 w-11 shrink-0 rounded-full ${bg} flex items-center justify-center font-semibold text-sm ring-4 ring-white shadow-card`}
-      aria-hidden
+      className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border-2 border-dashed border-slate-line bg-slate-50"
+      role="img"
+      aria-label={`Photo placeholder — ${captions[role] ?? "portrait"}`}
     >
-      {initials}
+      {/* generic camera / portrait-frame icon, no human likeness */}
+      <svg
+        viewBox="0 0 64 36"
+        className="absolute inset-0 m-auto h-12 w-20 text-slate-400"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        aria-hidden
+      >
+        <rect x="4" y="6" width="56" height="24" rx="2" />
+        <circle cx="32" cy="18" r="5" />
+        <path d="M22 8l2-3h16l2 3" strokeLinejoin="round" />
+        <path d="M14 26c2-3 6-5 10-5s8 2 10 5" strokeLinecap="round" />
+      </svg>
+      <span className="absolute bottom-1.5 left-2 right-2 text-[10px] uppercase tracking-wider text-slate-400 text-center">
+        {captions[role] ?? "Portrait"}
+      </span>
     </div>
   );
 }
@@ -344,32 +377,26 @@ function FeatureIcon({ name }: { name: string }) {
   );
 }
 
-function Testimonial() {
+
+
+function UseCases() {
   return (
     <section className="max-w-6xl mx-auto px-6 py-10">
-      <figure className="rounded-2xl border border-slate-line bg-white p-8 shadow-card grid md:grid-cols-12 gap-6 items-center">
-        <div className="md:col-span-9">
-          <svg viewBox="0 0 24 24" className="h-7 w-7 text-accent" fill="currentColor" aria-hidden>
-            <path d="M9 4c-3 1-5 4-5 8v8h8v-8H7c0-3 1-5 3-6L9 4Zm10 0c-3 1-5 4-5 8v8h8v-8h-5c0-3 1-5 3-6L19 4Z" />
-          </svg>
-          <blockquote className="mt-3 text-xl text-ink leading-relaxed">
-            “We piloted the agent with 80 employees in their first week. People got answers
-            to leave questions in under five seconds, and our HRBP team finally trusted the
-            audit log enough to sign off on rolling it out company-wide.”
-          </blockquote>
-          <figcaption className="mt-4 text-sm text-muted">
-            <span className="font-semibold text-ink">Maya Ortiz</span> · Director, People Operations · Acme Corp
-          </figcaption>
-        </div>
-        <div className="md:col-span-3 flex md:justify-end">
-          <div
-            className="h-24 w-24 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-semibold text-2xl ring-4 ring-white shadow-card"
-            aria-hidden
-          >
-            MO
+      <div className="text-xs font-semibold uppercase tracking-wider text-accent">HR use cases</div>
+      <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+        What HR teams use it for on day one.
+      </h2>
+      <p className="mt-3 text-muted max-w-2xl">
+        Four workflows that replace the most common back-and-forth between employees, managers, and HR.
+      </p>
+      <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {USE_CASES.map((u) => (
+          <div key={u.title} className="rounded-xl border border-slate-line bg-white p-5 shadow-card">
+            <h3 className="font-semibold text-ink">{u.title}</h3>
+            <p className="mt-2 text-sm text-muted leading-relaxed">{u.body}</p>
           </div>
-        </div>
-      </figure>
+        ))}
+      </div>
     </section>
   );
 }
