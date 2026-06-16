@@ -1,9 +1,10 @@
 import { signInAsDemoUser } from "@/lib/demo-auth";
 import { WaitlistForm } from "@/components/waitlist-form";
 
-// Role cards for the demo. We do NOT use fictional names, faces, or quotes
-// anywhere in the public demo. The "photo" slots are clearly framed
-// placeholders so a real customer can drop in a real team photo later.
+// Role cards for the demo. We do NOT use fictional names or quotes
+// anywhere in the public demo. Each role card uses a real faceless Pexels
+// stock photo (hands, desk, back of head) as the backdrop — no human
+// likeness, no invented avatar.
 const ROLES = [
   {
     id: "employee",
@@ -290,10 +291,37 @@ function Personas() {
   );
 }
 
-// Role-first photo placeholder. The role name IS the visual — big, bold,
-// with a thin accent stripe and a small monogram icon. No human likeness
-// anywhere. The dashed border + tiny "photo placeholder" caption still
-// make it obvious that a real team photo can be dropped in later.
+// Role-first visual. The role name IS the visual — big, bold,
+// with a thin accent stripe and a small monogram icon. The background is
+// a real faceless Pexels stock photo (hands, desk, back of head) so the
+// demo feels human without inventing a person. The bottom caption credits
+// Pexels per the free-license convention.
+const ROLE_PHOTO: Record<
+  string,
+  { src: string; credit: string; tint: string }
+> = {
+  employee: {
+    src: "/photos/employee.jpg",
+    credit: "Photo: Pexels",
+    tint: "from-ink/55 via-ink/20 to-transparent",
+  },
+  manager: {
+    src: "/photos/manager.jpg",
+    credit: "Photo: Pexels",
+    tint: "from-ink/45 via-ink/15 to-transparent",
+  },
+  admin: {
+    src: "/photos/admin.jpg",
+    credit: "Photo: Pexels",
+    tint: "from-ink/50 via-ink/20 to-transparent",
+  },
+  viewer: {
+    src: "/photos/viewer.jpg",
+    credit: "Photo: Pexels",
+    tint: "from-ink/55 via-ink/25 to-transparent",
+  },
+};
+
 function PhotoPlaceholder({ role }: { role: string }) {
   const meta: Record<string, { label: string; initial: string; accent: string; sub: string }> = {
     employee: {
@@ -322,12 +350,30 @@ function PhotoPlaceholder({ role }: { role: string }) {
     },
   };
   const m = meta[role] ?? { label: role, initial: role.charAt(0).toUpperCase(), accent: "from-ink-muted to-ink-muted/85", sub: "Demo role" };
+  const photo = ROLE_PHOTO[role];
   return (
     <div
-      className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border-2 border-dashed border-hairline bg-surface-2"
+      className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border border-hairline bg-surface-2"
       role="img"
-      aria-label={`Photo placeholder for the ${m.label} role — drop a real team photo here`}
+      aria-label={`${m.label} role — faceless stock photo backdrop`}
     >
+      {photo ? (
+        <img
+          src={photo.src}
+          alt=""
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      ) : null}
+
+      {/* Soft top-to-bottom darken so the centered label reads on any photo */}
+      {photo ? (
+        <div
+          className={`absolute inset-0 bg-gradient-to-b ${photo.tint}`}
+          aria-hidden
+        />
+      ) : null}
+
       {/* Left accent stripe, same gradient as the role card below */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${m.accent}`} aria-hidden />
 
@@ -336,17 +382,17 @@ function PhotoPlaceholder({ role }: { role: string }) {
         <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${m.accent} text-white text-lg font-semibold `}>
           {m.initial}
         </div>
-        <div className="mt-2 text-xl font-semibold tracking-tight text-ink">
+        <div className="mt-2 text-xl font-semibold tracking-tight text-white drop-shadow-sm">
           {m.label}
         </div>
-        <div className="mt-0.5 text-[11px] text-ink-muted">
+        <div className="mt-0.5 text-[11px] text-white/85 drop-shadow-sm">
           {m.sub}
         </div>
       </div>
 
-      {/* Bottom: tiny placeholder caption */}
-      <span className="absolute bottom-1.5 left-3 right-3 text-[9px] text-ink-subtle text-center">
-        Photo placeholder · drop a real team photo here
+      {/* Bottom: tiny photo credit (Pexels free license) */}
+      <span className="absolute bottom-1.5 left-3 right-3 text-[9px] text-white/70 text-center drop-shadow-sm">
+        {photo?.credit ?? "Photo placeholder"}
       </span>
     </div>
   );
