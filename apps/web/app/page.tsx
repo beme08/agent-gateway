@@ -289,38 +289,63 @@ function Personas() {
   );
 }
 
-// Non-person photo placeholder. No human likeness anywhere on the landing
-// page — this is clearly a "drop a real team photo here" slot. The dashed
-// border + icon + caption make it obvious to the visitor.
+// Role-first photo placeholder. The role name IS the visual — big, bold,
+// with a thin accent stripe and a small monogram icon. No human likeness
+// anywhere. The dashed border + tiny "photo placeholder" caption still
+// make it obvious that a real team photo can be dropped in later.
 function PhotoPlaceholder({ role }: { role: string }) {
-  const captions: Record<string, string> = {
-    employee: "Add an employee portrait",
-    manager: "Add a manager portrait",
-    admin: "Add an admin portrait",
-    viewer: "Add a viewer portrait",
+  const meta: Record<string, { label: string; initial: string; accent: string; sub: string }> = {
+    employee: {
+      label: "Employee",
+      initial: "E",
+      accent: "from-indigo-500 to-indigo-600",
+      sub: "Asks about policy, files time off",
+    },
+    manager: {
+      label: "Manager",
+      initial: "M",
+      accent: "from-emerald-500 to-emerald-600",
+      sub: "Approves and audits team requests",
+    },
+    admin: {
+      label: "Admin",
+      initial: "A",
+      accent: "from-rose-500 to-rose-600",
+      sub: "Sees per-tenant traces & usage",
+    },
+    viewer: {
+      label: "Viewer",
+      initial: "V",
+      accent: "from-slate-500 to-slate-600",
+      sub: "Read-only — confirms ACL filters",
+    },
   };
+  const m = meta[role] ?? { label: role, initial: role.charAt(0).toUpperCase(), accent: "from-slate-400 to-slate-500", sub: "Demo role" };
   return (
     <div
       className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border-2 border-dashed border-slate-line bg-slate-50"
       role="img"
-      aria-label={`Photo placeholder — ${captions[role] ?? "portrait"}`}
+      aria-label={`Photo placeholder for the ${m.label} role — drop a real team photo here`}
     >
-      {/* generic camera / portrait-frame icon, no human likeness */}
-      <svg
-        viewBox="0 0 64 36"
-        className="absolute inset-0 m-auto h-12 w-20 text-slate-400"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        aria-hidden
-      >
-        <rect x="4" y="6" width="56" height="24" rx="2" />
-        <circle cx="32" cy="18" r="5" />
-        <path d="M22 8l2-3h16l2 3" strokeLinejoin="round" />
-        <path d="M14 26c2-3 6-5 10-5s8 2 10 5" strokeLinecap="round" />
-      </svg>
-      <span className="absolute bottom-1.5 left-2 right-2 text-[10px] uppercase tracking-wider text-slate-400 text-center">
-        {captions[role] ?? "Portrait"}
+      {/* Left accent stripe, same gradient as the role card below */}
+      <div className={`absolute left-0 top-0 bottom-0 w-1.5 bg-gradient-to-b ${m.accent}`} aria-hidden />
+
+      {/* Center: big role label + monogram + sub-line */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-3">
+        <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${m.accent} text-white text-lg font-semibold shadow-sm`}>
+          {m.initial}
+        </div>
+        <div className="mt-2 text-xl font-semibold tracking-tight text-ink">
+          {m.label}
+        </div>
+        <div className="mt-0.5 text-[11px] text-muted">
+          {m.sub}
+        </div>
+      </div>
+
+      {/* Bottom: tiny placeholder caption */}
+      <span className="absolute bottom-1.5 left-3 right-3 text-[9px] uppercase tracking-wider text-slate-400 text-center">
+        Photo placeholder · drop a real team photo here
       </span>
     </div>
   );

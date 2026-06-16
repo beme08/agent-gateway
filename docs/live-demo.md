@@ -1,6 +1,6 @@
 # Live Public Demo
 
-**Production URL**: https://agent-gateway-nxrt4v2y6-beme08s-projects.vercel.app
+**Production URL**: https://agent-gateway-d28w3my8n-beme08s-projects.vercel.app
 
 This is a deployed, public, recruiter-safe demo. No login is required to see the landing page or to try the waitlist. To walk the full HR workflow, click any **"Try as …"** button on the landing page — that signs you in as a seeded demo user and routes you to the right dashboard.
 
@@ -22,7 +22,7 @@ This is a deployed, public, recruiter-safe demo. No login is required to see the
 
 ## How to walk the demo in 60 seconds
 
-1. Open the [production URL](https://agent-gateway-nxrt4v2y6-beme08s-projects.vercel.app).
+1. Open the [production URL](https://agent-gateway-d28w3my8n-beme08s-projects.vercel.app).
 2. Click **"Try as Employee"**. You land on the leave page for `employee@acme.test` in Acme Corp.
 3. (Optional) Request time off. Or skip — there's usually a pending request already from the seed.
 4. From the same browser, click **"Try as Manager"**. You see the team queue with the pending request.
