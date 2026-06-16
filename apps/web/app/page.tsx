@@ -10,7 +10,7 @@ const ROLES = [
     title: "Acme Corp · Employee role",
     description:
       "Ask the HR agent about vacation, sick, bereavement, and personal time. Submit a leave request in chat and watch it land on your manager's queue.",
-    accent: "from-indigo-500 to-indigo-600",
+    accent: "from-ink to-ink/90",
   },
   {
     id: "manager",
@@ -18,7 +18,7 @@ const ROLES = [
     title: "Acme Corp · Manager role",
     description:
       "See your team's pending requests, approve or reject them. Every decision is audit-traced and tied to a verifiable tool call.",
-    accent: "from-emerald-500 to-emerald-600",
+    accent: "from-ink to-ink/90",
   },
   {
     id: "admin",
@@ -26,7 +26,7 @@ const ROLES = [
     title: "Acme Corp · Admin role",
     description:
       "Open the audit dashboard: per-tenant usage, every chat trace, every blocked prompt-injection event. Reset the demo data with one click.",
-    accent: "from-rose-500 to-rose-600",
+    accent: "from-ink to-ink/90",
   },
   {
     id: "viewer",
@@ -34,7 +34,7 @@ const ROLES = [
     title: "Acme Corp · Read-only role",
     description:
       "Read-only access. Confirms the ACL filter blocks executive compensation content from the prompt, while still retrieving the public policy docs.",
-    accent: "from-slate-500 to-slate-600",
+    accent: "from-ink to-ink/90",
   },
 ] as const;
 
@@ -105,16 +105,16 @@ function Hero() {
       <div className="absolute inset-0 bg-hero-grid [background-size:22px_22px] opacity-60" aria-hidden />
       <div className="relative max-w-6xl mx-auto px-6 pt-16 pb-14 grid lg:grid-cols-12 gap-10 items-center">
         <div className="lg:col-span-7">
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-line bg-white px-3 py-1 text-xs text-muted shadow-card">
+          <div className="inline-flex items-center gap-2 rounded-full border border-hairline bg-white px-3 py-1 text-xs text-ink-muted">
             <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
             Public demo · live now
           </div>
-          <h1 className="mt-5 text-4xl sm:text-5xl font-semibold tracking-tight text-ink">
+          <h1 className="mt-5 text-4xl sm:text-5xl font-medium text-ink tracking-display">
             The HR-grade AI gateway
             <br className="hidden sm:block" />
-            <span className="text-accent"> your people actually trust.</span>
+            <span className="text-accent-orange"> your people actually trust.</span>
           </h1>
-          <p className="mt-5 text-lg text-muted max-w-2xl">
+          <p className="mt-5 text-lg text-ink-muted max-w-2xl">
             A multi-tenant agentic AI platform where an HR Policy Agent answers policy questions with
             ACL-filtered retrieval, files time-off requests (vacation, PTO, sick, bereavement, parental,
             personal, jury duty, unpaid leave) through role-gated tools, and records every retrieval
@@ -123,19 +123,19 @@ function Hero() {
           <div className="mt-7 flex flex-wrap gap-3">
             <a
               href="#personas"
-              className="inline-flex items-center gap-2 rounded-md bg-accent px-5 py-3 text-sm font-semibold text-white shadow-card hover:opacity-95"
+              className="btn-primary px-5 py-3 text-sm"
             >
               Try the demo
               <span aria-hidden>→</span>
             </a>
             <a
               href="#architecture"
-              className="inline-flex items-center gap-2 rounded-md border border-slate-line bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-slate-50"
+              className="btn-secondary px-5 py-3 text-sm"
             >
               See architecture
             </a>
           </div>
-          <p className="mt-4 text-xs text-muted">
+          <p className="mt-4 text-xs text-ink-muted">
             No signup. Click any role to sign in as a seeded demo user.
           </p>
         </div>
@@ -151,7 +151,7 @@ function HeroIllustration() {
   // Inline SVG: a small "office team" composition — desk + laptop + 3 people avatars
   return (
     <div className="relative aspect-[5/4] w-full">
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white to-accent-soft shadow-card" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white to-surface-2" />
       <svg
         viewBox="0 0 500 400"
         className="absolute inset-0 h-full w-full"
@@ -165,57 +165,57 @@ function HeroIllustration() {
             <stop offset="100%" stopColor="#e6e8ef" />
           </linearGradient>
           <linearGradient id="laptop" x1="0" x2="0" y1="0" y2="1">
-            <stop offset="0%" stopColor="#1f243a" />
-            <stop offset="100%" stopColor="#0b1020" />
+            <stop offset="0%" stopColor="#111111" />
+            <stop offset="100%" stopColor="#111111" />
           </linearGradient>
         </defs>
 
         {/* desk */}
-        <rect x="40" y="270" width="420" height="20" rx="6" fill="url(#desk)" stroke="#dfe2ec" />
-        <rect x="60" y="290" width="20" height="80" fill="#dfe2ec" />
-        <rect x="420" y="290" width="20" height="80" fill="#dfe2ec" />
+        <rect x="40" y="270" width="420" height="20" rx="6" fill="url(#desk)" stroke="#d3cec6" />
+        <rect x="60" y="290" width="20" height="80" fill="#ebe7e1" />
+        <rect x="420" y="290" width="20" height="80" fill="#ebe7e1" />
 
         {/* laptop */}
         <rect x="200" y="180" width="180" height="110" rx="10" fill="url(#laptop)" />
-        <rect x="210" y="190" width="160" height="90" rx="4" fill="#0b1020" />
-        <rect x="180" y="285" width="220" height="8" rx="3" fill="#1f243a" />
+        <rect x="210" y="190" width="160" height="90" rx="4" fill="#111111" />
+        <rect x="180" y="285" width="220" height="8" rx="3" fill="#111111" />
         {/* screen content: chat bubbles */}
-        <rect x="220" y="200" width="120" height="14" rx="6" fill="#4f46e5" opacity="0.85" />
-        <rect x="220" y="222" width="90" height="10" rx="5" fill="#3a3f5c" />
-        <rect x="220" y="238" width="140" height="10" rx="5" fill="#3a3f5c" />
-        <rect x="220" y="254" width="100" height="10" rx="5" fill="#10b981" opacity="0.85" />
+        <rect x="220" y="200" width="120" height="14" rx="6" fill="#111111" opacity="0.85" />
+        <rect x="220" y="222" width="90" height="10" rx="5" fill="#ebe7e1" />
+        <rect x="220" y="238" width="140" height="10" rx="5" fill="#ebe7e1" />
+        <rect x="220" y="254" width="100" height="10" rx="5" fill="#ff5600" opacity="0.9" />
 
         {/* left person */}
         <g transform="translate(70,120)">
-          <circle cx="30" cy="30" r="28" fill="#eef2ff" stroke="#c7d2fe" />
-          <circle cx="30" cy="26" r="10" fill="#4f46e5" />
-          <path d="M10 60 Q30 42 50 60 L50 78 L10 78 Z" fill="#4f46e5" />
-          <text x="30" y="98" textAnchor="middle" fontSize="11" fontFamily="ui-sans-serif" fill="#5b6478">Employee</text>
+          <circle cx="30" cy="30" r="28" fill="#ebe7e1" stroke="#d3cec6" />
+          <circle cx="30" cy="26" r="10" fill="#111111" />
+          <path d="M10 60 Q30 42 50 60 L50 78 L10 78 Z" fill="#111111" />
+          <text x="30" y="98" textAnchor="middle" fontSize="11" fontFamily="ui-sans-serif" fill="#626260">Employee</text>
         </g>
 
         {/* right person */}
         <g transform="translate(380,120)">
-          <circle cx="30" cy="30" r="28" fill="#ecfdf5" stroke="#a7f3d0" />
-          <circle cx="30" cy="26" r="10" fill="#10b981" />
-          <path d="M10 60 Q30 42 50 60 L50 78 L10 78 Z" fill="#10b981" />
-          <text x="30" y="98" textAnchor="middle" fontSize="11" fontFamily="ui-sans-serif" fill="#5b6478">Manager</text>
+          <circle cx="30" cy="30" r="28" fill="#ebe7e1" stroke="#d3cec6" />
+          <circle cx="30" cy="26" r="10" fill="#ff5600" />
+          <path d="M10 60 Q30 42 50 60 L50 78 L10 78 Z" fill="#ff5600" />
+          <text x="30" y="98" textAnchor="middle" fontSize="11" fontFamily="ui-sans-serif" fill="#626260">Manager</text>
         </g>
 
         {/* floating UI chips */}
         <g>
-          <rect x="80" y="60" width="120" height="22" rx="11" fill="#ffffff" stroke="#e6e8ef" />
-          <circle cx="93" cy="71" r="4" fill="#4f46e5" />
-          <text x="104" y="75" fontSize="10" fontFamily="ui-sans-serif" fill="#0b1020">Sick leave policy</text>
+          <rect x="80" y="60" width="120" height="22" rx="11" fill="#ffffff" stroke="#d3cec6" />
+          <circle cx="93" cy="71" r="4" fill="#111111" />
+          <text x="104" y="75" fontSize="10" fontFamily="ui-sans-serif" fill="#111111">Sick leave policy</text>
         </g>
         <g>
-          <rect x="300" y="60" width="140" height="22" rx="11" fill="#ffffff" stroke="#e6e8ef" />
-          <circle cx="313" cy="71" r="4" fill="#10b981" />
-          <text x="324" y="75" fontSize="10" fontFamily="ui-sans-serif" fill="#0b1020">Approve request</text>
+          <rect x="300" y="60" width="140" height="22" rx="11" fill="#ffffff" stroke="#d3cec6" />
+          <circle cx="313" cy="71" r="4" fill="#ff5600" />
+          <text x="324" y="75" fontSize="10" fontFamily="ui-sans-serif" fill="#111111">Approve request</text>
         </g>
         <g>
-          <rect x="160" y="320" width="180" height="22" rx="11" fill="#ffffff" stroke="#e6e8ef" />
-          <circle cx="173" cy="331" r="4" fill="#f43f5e" />
-          <text x="184" y="335" fontSize="10" fontFamily="ui-sans-serif" fill="#0b1020">Audit trace recorded</text>
+          <rect x="160" y="320" width="180" height="22" rx="11" fill="#ffffff" stroke="#d3cec6" />
+          <circle cx="173" cy="331" r="4" fill="#ff5600" />
+          <text x="184" y="335" fontSize="10" fontFamily="ui-sans-serif" fill="#111111">Audit trace recorded</text>
         </g>
       </svg>
     </div>
@@ -224,16 +224,16 @@ function HeroIllustration() {
 
 function TrustStrip() {
   return (
-    <section className="border-y border-slate-line bg-white">
+    <section className="bg-white">
       <div className="max-w-6xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs">
         {TRUST_BADGES.map((b) => (
           <div key={b.label} className="flex items-center gap-2">
-            <svg viewBox="0 0 20 20" className="w-4 h-4 text-emerald-600" fill="currentColor" aria-hidden>
+            <svg viewBox="0 0 20 20" className="w-4 h-4 text-ink-muted" fill="currentColor" aria-hidden>
               <path d="M10 1.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8L10 14.9 4.8 17.6l1-5.8L1.5 7.7l5.9-.9L10 1.5z" />
             </svg>
             <div className="leading-tight">
-              <div className="font-semibold text-ink">{b.label}</div>
-              <div className="text-muted">{b.sub}</div>
+              <div className="font-semibold text-ink text-[13px]">{b.label}</div>
+              <div className="text-ink-muted">{b.sub}</div>
             </div>
           </div>
         ))}
@@ -244,11 +244,11 @@ function TrustStrip() {
 
 function Personas() {
   return (
-    <section id="personas" className="max-w-6xl mx-auto px-6 py-14">
+    <section id="personas" className="max-w-6xl mx-auto px-6 py-20">
       <div className="max-w-2xl">
-        <div className="text-xs font-semibold uppercase tracking-wider text-accent">Try the demo</div>
-        <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">Pick a role to sign in</h2>
-        <p className="mt-3 text-muted">
+        <div className="text-sm font-medium text-ink-muted">Try the demo</div>
+        <h2 className="mt-2 text-3xl font-medium text-ink tracking-headline">Pick a role to sign in</h2>
+        <p className="mt-3 text-ink-muted">
           Each button signs you in as a real seeded user inside Acme Corp, with a real leave balance,
           a real manager, and a real audit log. Every action you take is end-to-end traceable.
         </p>
@@ -262,15 +262,15 @@ function Personas() {
               "use server";
               await signInAsDemoUser(r.id);
             }}
-            className="group relative rounded-xl border border-slate-line bg-white p-5 shadow-card hover:shadow-card-hover transition flex flex-col"
+            className="group relative rounded-xl border border-hairline bg-white p-5 transition flex flex-col"
           >
             <PhotoPlaceholder role={r.id} />
-            <div className="mt-4 text-xs uppercase tracking-wider text-muted">{r.label}</div>
-            <div className="font-semibold text-ink">{r.title}</div>
-            <p className="mt-3 text-sm text-ink/80 leading-relaxed flex-1">{r.description}</p>
+            <div className="mt-4 text-xs font-medium text-ink-muted">{r.label}</div>
+            <div className="mt-1 font-medium text-ink">{r.title}</div>
+            <p className="mt-3 text-sm text-ink-muted leading-relaxed flex-1">{r.description}</p>
             <button
               type="submit"
-              className={`mt-5 inline-flex items-center justify-between gap-2 rounded-md bg-gradient-to-r ${r.accent} px-4 py-2 text-sm font-semibold text-white shadow-card hover:opacity-95`}
+              className="mt-5 btn-primary justify-between"
             >
               <span>Sign in as {r.label}</span>
               <span aria-hidden>→</span>
@@ -279,7 +279,7 @@ function Personas() {
         ))}
       </div>
 
-      <div className="mt-6 text-xs text-muted">
+      <div className="mt-6 text-xs text-ink-muted">
         Manual sign-in also works at <a className="underline" href="/login">/login</a> using
         <code className="kbd mx-1">admin@acme.test</code>
         /
@@ -298,32 +298,32 @@ function PhotoPlaceholder({ role }: { role: string }) {
     employee: {
       label: "Employee",
       initial: "E",
-      accent: "from-indigo-500 to-indigo-600",
+      accent: "from-ink to-ink/85",
       sub: "Asks about policy, files time off",
     },
     manager: {
       label: "Manager",
       initial: "M",
-      accent: "from-emerald-500 to-emerald-600",
+      accent: "from-ink to-ink/85",
       sub: "Approves and audits team requests",
     },
     admin: {
       label: "Admin",
       initial: "A",
-      accent: "from-rose-500 to-rose-600",
+      accent: "from-accent-orange to-accent-orange/85",
       sub: "Sees per-tenant traces & usage",
     },
     viewer: {
       label: "Viewer",
       initial: "V",
-      accent: "from-slate-500 to-slate-600",
+      accent: "from-ink-muted to-ink-muted/85",
       sub: "Read-only — confirms ACL filters",
     },
   };
-  const m = meta[role] ?? { label: role, initial: role.charAt(0).toUpperCase(), accent: "from-slate-400 to-slate-500", sub: "Demo role" };
+  const m = meta[role] ?? { label: role, initial: role.charAt(0).toUpperCase(), accent: "from-ink-muted to-ink-muted/85", sub: "Demo role" };
   return (
     <div
-      className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border-2 border-dashed border-slate-line bg-slate-50"
+      className="relative aspect-[16/9] w-full overflow-hidden rounded-lg border-2 border-dashed border-hairline bg-surface-2"
       role="img"
       aria-label={`Photo placeholder for the ${m.label} role — drop a real team photo here`}
     >
@@ -332,19 +332,19 @@ function PhotoPlaceholder({ role }: { role: string }) {
 
       {/* Center: big role label + monogram + sub-line */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-3">
-        <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${m.accent} text-white text-lg font-semibold shadow-sm`}>
+        <div className={`flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br ${m.accent} text-white text-lg font-semibold `}>
           {m.initial}
         </div>
         <div className="mt-2 text-xl font-semibold tracking-tight text-ink">
           {m.label}
         </div>
-        <div className="mt-0.5 text-[11px] text-muted">
+        <div className="mt-0.5 text-[11px] text-ink-muted">
           {m.sub}
         </div>
       </div>
 
       {/* Bottom: tiny placeholder caption */}
-      <span className="absolute bottom-1.5 left-3 right-3 text-[9px] uppercase tracking-wider text-slate-400 text-center">
+      <span className="absolute bottom-1.5 left-3 right-3 text-[9px] text-ink-subtle text-center">
         Photo placeholder · drop a real team photo here
       </span>
     </div>
@@ -353,18 +353,18 @@ function PhotoPlaceholder({ role }: { role: string }) {
 
 function Features() {
   return (
-    <section className="max-w-6xl mx-auto px-6 py-12">
-      <div className="text-xs font-semibold uppercase tracking-wider text-accent">What you get</div>
-      <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+    <section className="max-w-6xl mx-auto px-6 py-20">
+      <div className="text-sm font-medium text-ink-muted">What you get</div>
+      <h2 className="mt-2 text-3xl font-medium text-ink tracking-headline">
         Built for the way HR, IT, and security actually work.
       </h2>
 
       <div className="mt-8 grid md:grid-cols-3 gap-5">
         {FEATURES.map((f) => (
-          <div key={f.title} className="rounded-xl border border-slate-line bg-white p-6 shadow-card">
+          <div key={f.title} className="rounded-xl border border-hairline bg-white p-6">
             <FeatureIcon name={f.icon} />
-            <h3 className="mt-4 font-semibold text-ink">{f.title}</h3>
-            <p className="mt-2 text-sm text-muted leading-relaxed">{f.body}</p>
+            <h3 className="mt-4 font-medium text-ink">{f.title}</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">{f.body}</p>
           </div>
         ))}
       </div>
@@ -373,7 +373,7 @@ function Features() {
 }
 
 function FeatureIcon({ name }: { name: string }) {
-  const common = "h-9 w-9 text-accent";
+  const common = "h-9 w-9 text-ink";
   if (name === "search") {
     return (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={common} aria-hidden>
@@ -406,19 +406,19 @@ function FeatureIcon({ name }: { name: string }) {
 
 function UseCases() {
   return (
-    <section className="max-w-6xl mx-auto px-6 py-10">
-      <div className="text-xs font-semibold uppercase tracking-wider text-accent">HR use cases</div>
-      <h2 className="mt-2 text-3xl font-semibold tracking-tight text-ink">
+    <section className="max-w-6xl mx-auto px-6 py-20">
+      <div className="text-sm font-medium text-ink-muted">HR use cases</div>
+      <h2 className="mt-2 text-3xl font-medium text-ink tracking-headline">
         What HR teams use it for on day one.
       </h2>
-      <p className="mt-3 text-muted max-w-2xl">
+      <p className="mt-3 text-ink-muted max-w-2xl">
         Four workflows that replace the most common back-and-forth between employees, managers, and HR.
       </p>
       <div className="mt-8 grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {USE_CASES.map((u) => (
-          <div key={u.title} className="rounded-xl border border-slate-line bg-white p-5 shadow-card">
-            <h3 className="font-semibold text-ink">{u.title}</h3>
-            <p className="mt-2 text-sm text-muted leading-relaxed">{u.body}</p>
+          <div key={u.title} className="rounded-xl border border-hairline bg-white p-5">
+            <h3 className="font-medium text-ink">{u.title}</h3>
+            <p className="mt-2 text-sm text-ink-muted leading-relaxed">{u.body}</p>
           </div>
         ))}
       </div>
@@ -428,11 +428,11 @@ function UseCases() {
 
 function ArchitectureNotes() {
   return (
-    <section id="architecture" className="max-w-6xl mx-auto px-6 py-10">
-      <div className="rounded-2xl border border-slate-line bg-white p-8 shadow-card">
-        <div className="text-xs font-semibold uppercase tracking-wider text-accent">Under the hood</div>
-        <h2 className="mt-2 text-2xl font-semibold tracking-tight text-ink">Architecture highlights</h2>
-        <ul className="mt-5 grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-ink/80 list-disc list-inside">
+    <section id="architecture" className="max-w-6xl mx-auto px-6 py-20">
+      <div className="rounded-xl border border-hairline bg-white p-8">
+        <div className="text-sm font-medium text-ink-muted">Under the hood</div>
+        <h2 className="mt-2 text-2xl font-medium text-ink tracking-headline">Architecture highlights</h2>
+        <ul className="mt-5 grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-ink-muted list-disc list-inside">
           <li>Multi-tenant Postgres with RLS keyed off <code className="kbd">tenant_memberships</code>.</li>
           <li>ACL-filtered pgvector retrieval — restricted tags never enter the prompt.</li>
           <li>Tool gateway with role gates, schema validation, and per-call policy decisions.</li>
@@ -447,10 +447,10 @@ function ArchitectureNotes() {
 
 function WaitlistCTA() {
   return (
-    <section className="max-w-6xl mx-auto px-6 py-10">
-      <div className="rounded-2xl border border-slate-line bg-white p-8 shadow-card">
-        <h2 className="text-2xl font-semibold tracking-tight text-ink">Join the private beta</h2>
-        <p className="mt-2 text-muted">
+    <section className="max-w-6xl mx-auto px-6 py-20">
+      <div className="rounded-xl border border-hairline bg-white p-8">
+        <h2 className="text-2xl font-medium text-ink tracking-headline">Join the private beta</h2>
+        <p className="mt-2 text-ink-muted">
           Not ready for self-serve yet. Drop your email and we'll reach out when the next
           cohort opens.
         </p>
@@ -471,7 +471,7 @@ function WaitlistCTA() {
             <label className="label" htmlFor="role">Role</label>
             <input id="role" name="role" className="input" placeholder="Head of People" />
           </div>
-          <button className="rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-white shadow-card hover:opacity-95">
+          <button className="btn-orange px-5 py-2.5 text-sm">
             Join waitlist
           </button>
         </form>
@@ -482,8 +482,8 @@ function WaitlistCTA() {
 
 function SiteFooter() {
   return (
-    <footer className="border-t border-slate-line bg-white">
-      <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
+    <footer className="border-t border-hairline bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-6 flex flex-wrap items-center justify-between gap-3 text-xs text-ink-muted">
         <div>
           Secure Enterprise Agent Gateway · public demo
         </div>

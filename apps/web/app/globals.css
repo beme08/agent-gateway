@@ -7,17 +7,20 @@
 }
 
 body {
-  background: #f7f8fb;
-  color: #0b1020;
+  background: #f5f1ec;
+  color: #111111;
 }
 
 .btn {
   @apply inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition;
 }
-.btn-primary { @apply btn bg-accent text-white hover:opacity-90; }
-.btn-secondary { @apply btn bg-white text-ink border border-slate-300 hover:bg-slate-50; }
-.btn-ghost { @apply btn text-ink hover:bg-slate-100; }
-.card { @apply bg-white border border-slate-200 rounded-lg shadow-sm; }
-.input { @apply w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-accent/40; }
-.label { @apply block text-xs font-medium text-slate-600 mb-1; }
-.kbd { @apply rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-700 border border-slate-200; }
+.btn-primary { @apply btn bg-ink text-white hover:opacity-90; }
+.btn-orange  { @apply btn bg-accent-orange text-white hover:opacity-90; }
+.btn-secondary { @apply btn bg-white text-ink border border-hairline hover:bg-surface-2; }
+.btn-ghost { @apply btn text-ink hover:bg-surface-2; }
+
+/* Intercom pattern: white-on-cream surface change + 1px hairline. No shadow. */
+.card { @apply bg-white border border-hairline rounded-xl; }
+.input { @apply w-full rounded-md border border-hairline bg-white px-3 py-2 text-sm text-ink placeholder:text-ink-subtle focus:outline-none focus:ring-2 focus:ring-ink/20; }
+.label { @apply block text-xs font-medium text-ink-muted mb-1; }
+.kbd { @apply rounded bg-surface-2 px-1.5 py-0.5 text-xs text-ink-muted border border-hairline; }
