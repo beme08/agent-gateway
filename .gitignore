@@ -54,3 +54,10 @@ supabase/.temp
 *.seed
 *.pid.lock
 .vercel
+
+# Python build artifacts
+*.egg-info/
+
+# Inner package-lock.json files — root package-lock.json is the source
+# of truth in this npm-workspaces repo (root workspaces: apps/web, apps/api).
+apps/*/package-lock.json
