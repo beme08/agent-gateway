@@ -1,0 +1,129 @@
+#!/usr/bin/env bash
+# Pre-commit secret + PII scanner.
+#
+# Rejects commits that add high-risk patterns: real API keys, .env files,
+# auth.json, real emails outside *.test, real phone numbers.
+# Warns (but allows) on borderline cases.
+#
+# Enable with:
+#   git config core.hooksPath .githooks
+#
+# Bypass (use sparingly): git commit --no-verify
+set -euo pipefail
+
+# --- Whitelists (paths + content) -----------------------------------------
+
+# Always-skip files that are known to contain hashes / placeholders.
+ALWAYS_SKIP_PATH_REGEX='(^|/)(
+  package-lock\.json
+  | apps/web/package-lock\.json
+  | apps/api/package-lock\.json
+  | pnpm-lock\.yaml
+  | yarn\.lock
+)$'
+
+# Email whitelist: allow *.test (RFC 2606 reserved TLD) and our own docs.
+ALLOWED_EMAIL_REGEX='[A-Za-z0-9._%+-]+@(acme|globex)\.test'
+
+# --- Helpers --------------------------------------------------------------
+
+fail() {
+  printf '\n\033[31m[pre-commit] REJECTED: %s\033[0m\n\n' "$1" >&2
+  exit 1
+}
+
+warn() {
+  printf '\n\033[33m[pre-commit] WARNING: %s\033[0m\n' "$1" >&2
+}
+
+is_skippable_path() {
+  local path="$1"
+  [[ "$path" =~ $ALWAYS_SKIP_PATH_REGEX ]]
+}
+
+scan_file() {
+  local file="$1"
+  if is_skippable_path "$file"; then
+    return 0
+  fi
+
+  # 1) Reject any attempt to add a real .env file (beyond the .example)
+  case "$file" in
+    *.env|\.env|\.env.*|apps/*/\.env|apps/*/\.env.*)
+      if [[ "$file" != *.env.example && "$file" != */.env.example ]]; then
+        fail "Refusing to commit env file: $file"
+      fi
+      ;;
+    auth.json)
+      fail "Refusing to commit auth.json (Vercel token store)"
+      ;;
+  esac
+
+  # 2) Scan content for high-risk patterns
+  if [[ ! -f "$file" ]]; then
+    return 0
+  fi
+  # Only scan text-ish files (< 1 MB)
+  local size
+  size=$(wc -c < "$file" | tr -d ' ')
+  if [[ "$size" -gt 1048576 ]]; then
+    return 0
+  fi
+
+  # API key shapes — these are extremely high confidence.
+  if grep -nE '\b(sk-[A-Za-z0-9]{16,}|sk_live_[A-Za-z0-9]{16,}|rk_[A-Za-z0-9]{16,})\b' "$file" >/dev/null 2>&1; then
+    fail "Possible OpenAI/Stripe API key in $file — see line: $(grep -nE '\b(sk-[A-Za-z0-9]{16,}|sk_live_[A-Za-z0-9]{16,}|rk_[A-Za-z0-9]{16,})\b' "$file" | head -1)"
+  fi
+  if grep -nE '\bAKIA[0-9A-Z]{16}\b' "$file" >/dev/null 2>&1; then
+    fail "Possible AWS access key in $file — see line: $(grep -nE '\bAKIA[0-9A-Z]{16}\b' "$file" | head -1)"
+  fi
+  if grep -nE '\bghp_[A-Za-z0-9]{30,}\b' "$file" >/dev/null 2>&1; then
+    fail "Possible GitHub personal access token in $file"
+  fi
+  if grep -nE '\b(xox[abprs]-[A-Za-z0-9-]{10,})\b' "$file" >/dev/null 2>&1; then
+    fail "Possible Slack token in $file"
+  fi
+  if grep -nE 'supabase[_-]?service[_-]?role[_-]?key' "$file" >/dev/null 2>&1; then
+    if grep -nE 'eyJ[A-Za-z0-9_-]{40,}' "$file" >/dev/null 2>&1; then
+      fail "Possible Supabase service-role key in $file (JWT-shaped value near 'service_role_key')"
+    fi
+  fi
+
+  # Real emails (warn, not reject — demo codebase has many)
+  if grep -nE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|org|net|io|co|me|us|uk|de|fr|jp|cn|ru|br|in|au|ca|edu|gov)\b' "$file" 2>/dev/null \
+     | grep -vE "$ALLOWED_EMAIL_REGEX" >/dev/null 2>&1; then
+    # Only warn on files outside docs/demo and seed scripts
+    case "$file" in
+      docs/*|scripts/create_demo_users.ts|scripts/seed*.ts|README.md|CONTRIBUTING.md|SECURITY.md)
+        ;;
+      *)
+        warn "Real-looking email in $file: $(grep -nE '[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.(com|org|net|io)\b' "$file" | grep -vE "$ALLOWED_EMAIL_REGEX" | head -1)"
+        ;;
+    esac
+  fi
+
+  # US phone numbers (warn)
+  if grep -nE '\b[0-9]{3}-[0-9]{3}-[0-9]{4}\b' "$file" >/dev/null 2>&1; then
+    warn "Possible US phone number in $file"
+  fi
+
+  # International phone numbers (warn)
+  if grep -nE '\+[0-9]{10,15}\b' "$file" >/dev/null 2>&1; then
+    warn "Possible international phone number in $file"
+  fi
+}
+
+# --- Main -----------------------------------------------------------------
+
+changed_files=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [[ -z "$changed_files" ]]; then
+  exit 0
+fi
+
+while IFS= read -r file; do
+  [[ -z "$file" ]] && continue
+  scan_file "$file"
+done <<< "$changed_files"
+
+exit 0

@@ -61,3 +61,6 @@ supabase/.temp
 # Inner package-lock.json files — root package-lock.json is the source
 # of truth in this npm-workspaces repo (root workspaces: apps/web, apps/api).
 apps/*/package-lock.json
+
+# Local pre-commit hook overrides (personal extensions, not for commit)
+.githooks.local/
