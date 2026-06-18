@@ -45,7 +45,7 @@ Same set with `@globex.test` for the second seeded tenant.
 
 | Tier | Host | Status |
 |---|---|---|
-| Web (Next.js 14) | Vercel — `beme08s-projects/agent-gateway` | ✅ Live, all 5 env vars set, production deployment is `5b9dfc2` |
+| Web (Next.js 14) | Vercel — `beme08s-projects/agent-gateway` | ✅ Live, all 5 env vars set, production deployment is `cdd986d` |
 | API (FastAPI) | Render or Fly.io | 🟡 Deferred for the private beta. Dockerfile is committed at `apps/api/Dockerfile`; deploy steps in `docs/deployment.md` § 3. The live web demo runs the chat UI but the chat endpoint will 502 until the API is deployed. |
 | Database | Supabase (hosted) | ✅ 7 migrations applied, 10 demo users, 2 seeded tenants, full RLS |
 

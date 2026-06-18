@@ -1,7 +1,7 @@
 import { chromium } from "playwright";
 import fs from "fs";
 
-const URL = "https://agent-gateway-qdauk3e09-beme08s-projects.vercel.app";
+const URL = process.env.E2E_URL || "https://agent-gateway-reqonacjn-beme08s-projects.vercel.app";
 const SHOTS = "/tmp/e2e/shots";
 fs.mkdirSync(SHOTS, { recursive: true });
 
