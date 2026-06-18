@@ -4,6 +4,8 @@ A deployed, multi-tenant agentic AI platform with a flagship **HR Policy Agent**
 
 > **Launch mode**: public demo with seeded tenants and "Try as…" role buttons. Not a real self-serve SaaS yet. See [Launch Strategy](docs/launch.md).
 
+> **Reporting security issues**: see [SECURITY.md](SECURITY.md) for the private disclosure policy.
+
 ## 🚀 Live public demo
 
 **https://agent-gateway-reqonacjn-beme08s-projects.vercel.app**

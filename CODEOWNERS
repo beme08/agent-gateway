@@ -1,0 +1,10 @@
+# CODEOWNERS — default reviewer routing for pull requests
+# Docs-only paths first, then default for everything else.
+
+/docs/**                   @beme08
+/README.md                 @beme08
+/CONTRIBUTING.md           @beme08
+/SECURITY.md               @beme08
+
+# Default for everything else
+*                          @beme08
