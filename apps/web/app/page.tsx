@@ -272,6 +272,7 @@ function Personas() {
             <p className="mt-3 text-sm text-ink-muted leading-relaxed flex-1">{r.description}</p>
             <button
               type="submit"
+              data-testid={`role-${r.id}`}
               className="mt-5 btn-primary justify-between"
             >
               <span>Sign in as {r.label}</span>

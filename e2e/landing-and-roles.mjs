@@ -20,7 +20,8 @@ const tryAsRole = async (label) => {
   // Start from a clean landing
   await page.goto(`${URL}/`);
   await page.waitForLoadState("networkidle");
-  const btn = page.locator(`button[type=submit]:has-text("Try as ${label}")`).first();
+  const roleId = label.toLowerCase();
+  const btn = page.locator(`[data-testid="role-${roleId}"]`).first();
   await btn.scrollIntoViewIfNeeded();
   await btn.click();
   await page.waitForLoadState("networkidle");

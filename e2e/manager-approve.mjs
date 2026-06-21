@@ -19,7 +19,7 @@ try {
   log("=== Sign in as Manager, approve the pending sick leave ===");
   await page.goto(`${URL}/`);
   await page.waitForLoadState("networkidle");
-  await page.locator(`button[type=submit]:has-text("Try as Manager")`).first().click();
+  await page.locator(`[data-testid="role-manager"]`).first().click();
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(2000);
   log("  url:", page.url());
@@ -44,7 +44,7 @@ try {
   log("\n=== Check admin audit log shows the new event ===");
   await page.goto(`${URL}/`);
   await page.waitForLoadState("networkidle");
-  await page.locator(`button[type=submit]:has-text("Try as Admin")`).first().click();
+  await page.locator(`[data-testid="role-admin"]`).first().click();
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(2000);
   await page.goto(`${URL}/audit`);
@@ -57,7 +57,7 @@ try {
   log("\n=== Try the chat UI as Employee (will show the demo questions) ===");
   await page.goto(`${URL}/`);
   await page.waitForLoadState("networkidle");
-  await page.locator(`button[type=submit]:has-text("Try as Employee")`).first().click();
+  await page.locator(`[data-testid="role-employee"]`).first().click();
   await page.waitForLoadState("networkidle");
   await page.waitForTimeout(2000);
   await page.goto(`${URL}/agents/hr-policy-agent`);
