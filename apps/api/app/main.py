@@ -23,6 +23,7 @@ from pydantic import BaseModel, Field
 
 from .agent.orchestrator import run as run_agent
 from .auth import CallerContext, get_caller
+from .ratelimit import enforce_chat_limit, enforce_general_limit
 from .db import service_client
 from .services.leave_service import (
     approve as svc_approve,
@@ -76,7 +77,11 @@ class ChatResponse(BaseModel):
 
 
 @app.post("/v1/agent/chat", response_model=ChatResponse)
-async def agent_chat(req: ChatRequest, caller: CallerContext = Depends(get_caller)):
+async def agent_chat(
+    req: ChatRequest,
+    caller: CallerContext = Depends(get_caller),
+    _: None = Depends(enforce_chat_limit),
+):
     result = await run_agent(
         caller={
             "user_id": caller.user_id,
@@ -101,7 +106,10 @@ async def agent_chat(req: ChatRequest, caller: CallerContext = Depends(get_calle
 # ---- Balances / leave -----------------------------------------------------
 
 @app.get("/v1/balances")
-async def get_balances(caller: CallerContext = Depends(get_caller)):
+async def get_balances(
+    caller: CallerContext = Depends(get_caller),
+    _: None = Depends(enforce_general_limit),
+):
     return {"balances": svc_balances(caller.tenant_id, caller.user_id)}
 
 
