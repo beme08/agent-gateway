@@ -64,3 +64,6 @@ apps/*/package-lock.json
 
 # Local pre-commit hook overrides (personal extensions, not for commit)
 .githooks.local/
+
+# Personal interview prep — not for public repo
+docs/PREP_PACK.md

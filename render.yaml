@@ -1,0 +1,27 @@
+# Render Blueprint for the FastAPI backend (agent-gateway-api)
+# Deploy: New -> Blueprint -> connect repo, or New -> Web Service with these values.
+services:
+  - type: web
+    name: agent-gateway-api
+    runtime: docker
+    rootDir: apps/api
+    dockerfilePath: Dockerfile
+    plan: free
+    healthCheckPath: /healthz
+    envVars:
+      - key: SUPABASE_URL
+        value: https://dabksbszhwqnpglattvb.supabase.co
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_JWT_SECRET
+        sync: false
+      - key: AGENT_API_KEY
+        generateValue: true
+      - key: ENABLE_PUBLIC_UPLOAD
+        value: "false"
+      - key: LOG_LEVEL
+        value: info
+      - key: COHERE_API_KEY
+        sync: false
