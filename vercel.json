@@ -1,9 +1,9 @@
 {
   "$schema": "https://json.schemastore.org/vercel.json",
-  "buildCommand": "npm run build",
+  "buildCommand": "npm run build:web",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "outputDirectory": ".next",
+  "outputDirectory": "apps/web/.next",
   "github": {
     "deploymentEnabled": true
   }
