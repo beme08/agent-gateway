@@ -1,9 +1,13 @@
 """JWT verification + caller context derivation.
 
 The agent never trusts client-supplied tenant/role flags. Every request
-must carry a Supabase JWT, which we verify against the project's JWT
-secret, then look up the tenant memberships server-side to derive the
+must carry a Supabase JWT, which we verify against the project's signing
+keys, then look up the tenant memberships server-side to derive the
 caller's role for the selected tenant.
+
+Supabase projects issue asymmetric (ES256) tokens verified against the
+project JWKS; legacy projects issue symmetric (HS256) tokens verified
+against the JWT secret. We support both.
 """
 from __future__ import annotations
 
@@ -26,8 +30,59 @@ class CallerContext:
     manager_user_id: Optional[str] = None
 
 
+_jwks_keys: dict[str, str] = {}
+
+
+def _jwks_signing_key(token: str) -> str | None:
+    """Resolve the public key for a token from the project JWKS (ES256 etc.)."""
+    s = get_settings()
+    try:
+        header = jwt.get_unverified_header(token)
+        kid = header.get("kid")
+        if not kid:
+            return None
+        if kid not in _jwks_keys:
+            import httpx
+
+            r = httpx.get(
+                f"{s.supabase_url.rstrip('/')}/auth/v1/.well-known/jwks.json",
+                timeout=10,
+            )
+            r.raise_for_status()
+            for k in r.json().get("keys", []):
+                _jwks_keys[k["kid"]] = k
+        jwk = _jwks_keys.get(kid)
+        if not jwk:
+            return None
+        from jwt.algorithms import RSAAlgorithm, ECAlgorithm
+
+        if jwk.get("kty") == "RSA":
+            return RSAAlgorithm.from_jwk(jwk)
+        if jwk.get("kty") == "EC":
+            return ECAlgorithm.from_jwk(jwk)
+        return None
+    except Exception:
+        return None
+
+
 def verify_jwt(token: str) -> dict:
     s = get_settings()
+    # Try asymmetric verification against the project JWKS first (ES256/RS256).
+    pub_key = _jwks_signing_key(token)
+    if pub_key is not None:
+        try:
+            return jwt.decode(
+                token,
+                pub_key,
+                algorithms=["ES256", "RS256", "ES384", "RS384"],
+                audience="authenticated",
+            )
+        except jwt.ExpiredSignatureError:
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "token expired")
+        except jwt.InvalidTokenError:
+            # fall through to legacy symmetric verification
+            pass
+    # Legacy symmetric verification against the JWT secret (HS256).
     try:
         return jwt.decode(token, s.supabase_jwt_secret, algorithms=["HS256"], audience="authenticated")
     except jwt.ExpiredSignatureError:
