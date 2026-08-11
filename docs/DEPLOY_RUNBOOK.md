@@ -59,8 +59,11 @@ curl https://agent-gateway-api.onrender.com/healthz   # expect {"ok":true}
 1. Open the agent-gateway project in Vercel → **Settings → Environment Variables**.
 2. Set `AGENT_API_URL` = `https://agent-gateway-api.onrender.com` (no trailing slash).
    If the deployed app uses `NEXT_PUBLIC_AGENT_API_URL`, set that too with the same value.
+   `apps/web/lib/agent-client.ts` reads `NEXT_PUBLIC_AGENT_API_URL` first — for client-side
+   code the value is baked in at build time, so set it and redeploy.
 3. **Deployments → Redeploy** the latest production deployment.
-
+4. Git author email must match a verified email on the Vercel account (Hobby plan) or
+   GitHub auto-deploys stay blocked (`TEAM_ACCESS_REQUIRED`). Check with `git config user.email`.
 ## Full end-to-end verification (the interview demo)
 
 1. `https://agent-gateway-reqonacjn-beme08s-projects.vercel.app`
