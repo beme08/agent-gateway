@@ -3,11 +3,12 @@ import { getSession } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 import { Chat } from "@/components/chat";
 
-export default async function AgentPage({ params }: { params: { id: string } }) {
+export default async function AgentPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getSession();
   if (!session) redirect("/");
   const m = session.memberships[0];
-  const supabase = createClient();
+  const supabase = await createClient();
 
   // Resolve the agent by slug-ish name "hr-policy-agent" -> title contains "HR Policy"
   const { data: agent } = await supabase

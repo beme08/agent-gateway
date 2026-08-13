@@ -1,17 +1,18 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string; next?: string };
+  searchParams: Promise<{ error?: string; next?: string }>;
 }) {
+  const { error: loginError } = await searchParams;
   async function login(formData: FormData) {
     "use server";
     const email = String(formData.get("email"));
     const password = String(formData.get("password"));
     const next = String(formData.get("next") || "/dashboard");
-    const supabase = createClient();
+    const supabase = await createClient();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
     redirect(next);
@@ -32,8 +33,8 @@ export default function LoginPage({
           <label className="label" htmlFor="password">Password</label>
           <input id="password" name="password" type="password" required className="input" />
         </div>
-        {searchParams.error && (
-          <p className="text-sm text-rose-600">{searchParams.error}</p>
+        {loginError && (
+          <p className="text-sm text-rose-600">{loginError}</p>
         )}
         <button className="btn-primary w-full">Sign in</button>
       </form>

@@ -34,7 +34,7 @@ export default async function LeavePage() {
   const session = await getSession();
   if (!session) redirect("/");
   const m = session.memberships[0];
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const year = new Date().getUTCFullYear();
   const [{ data: balances }, { data: requests }] = await Promise.all([

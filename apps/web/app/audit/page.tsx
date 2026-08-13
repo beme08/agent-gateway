@@ -9,7 +9,7 @@ export default async function AuditPage() {
   if (!session) redirect("/");
   const m = session.memberships[0];
   if (m.role !== "admin") redirect("/dashboard");
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const [{ data: traces }, { data: toolCalls }, { data: events }, { data: tenant }] = await Promise.all([
     supabase

@@ -2,17 +2,18 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/session";
 import { createClient } from "@/lib/supabase/server";
 
-export default async function TraceDetail({ params }: { params: { id: string } }) {
+export default async function TraceDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getSession();
   if (!session) redirect("/");
   const m = session.memberships[0];
   if (m.role !== "admin") redirect("/dashboard");
-  const supabase = createClient();
+  const supabase = await createClient();
 
   const { data: trace } = await supabase
     .from("agent_traces")
     .select("*")
-    .eq("id", params.id)
+    .eq("id", id)
     .eq("tenant_id", m.tenant_id)
     .single();
   if (!trace) return <main className="max-w-4xl mx-auto p-10"><p>Not found.</p></main>;
@@ -20,7 +21,7 @@ export default async function TraceDetail({ params }: { params: { id: string } }
   const { data: calls } = await supabase
     .from("tool_calls")
     .select("*")
-    .eq("trace_id", params.id)
+    .eq("trace_id", id)
     .order("created_at", { ascending: true });
 
   return (

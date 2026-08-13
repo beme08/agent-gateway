@@ -9,7 +9,7 @@ export default async function ApprovalsPage() {
   const m = session.memberships[0];
   if (m.role !== "manager" && m.role !== "admin") redirect("/dashboard");
 
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: pending } = await supabase
     .from("leave_requests")
     .select("id, user_id, leave_type, start_date, end_date, total_days, reason, status, created_at, users:user_id (email, full_name)")

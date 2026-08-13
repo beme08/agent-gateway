@@ -15,7 +15,7 @@ const ROLE_TO_EMAIL: Record<string, { tenant: "acme" | "globex"; email: string; 
 export async function signInAsDemoUser(role: keyof typeof ROLE_TO_EMAIL) {
   const spec = ROLE_TO_EMAIL[role];
   if (!spec) throw new Error("unknown role");
-  const supabase = createClient();
+  const supabase = await createClient();
   const { error } = await supabase.auth.signInWithPassword({
     email: spec.email,
     password: DEMO_PASSWORD,
@@ -27,7 +27,7 @@ export async function signInAsDemoUser(role: keyof typeof ROLE_TO_EMAIL) {
 }
 
 export async function signOut() {
-  const supabase = createClient();
+  const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/");
 }

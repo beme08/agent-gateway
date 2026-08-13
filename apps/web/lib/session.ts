@@ -7,7 +7,7 @@ export type SessionInfo = {
 };
 
 export async function getSession(): Promise<SessionInfo | null> {
-  const supabase = createClient();
+  const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
 
