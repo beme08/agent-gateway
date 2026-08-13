@@ -24,7 +24,11 @@ PATTERNS: list[tuple[str, re.Pattern[str], str]] = [
     ("data_url",        re.compile(r"https?://[^\s]{50,}", re.I), "low"),
 ]
 
-SUSPICIOUS_BLOB = re.compile(r"[A-Za-z0-9+/]{120,}={0,2}")
+# Match a base64 body (at least 120 chars). Padding is stripped before
+# validation so padded blobs like "AAAA...==" are still caught. Without
+# this, `b64decode(validate=True)` rejects padded blocks whose total length
+# (body + padding) is not a multiple of 4.
+SUSPICIOUS_BLOB = re.compile(r"[A-Za-z0-9+/]{120,}")
 
 
 @dataclass
@@ -47,8 +51,11 @@ def detect(text: str) -> Detection:
 
     has_blob = False
     for match in SUSPICIOUS_BLOB.findall(text):
+        candidate = match.rstrip("=")
+        if len(candidate) % 4 != 0:
+            continue
         try:
-            base64.b64decode(match, validate=True)
+            base64.b64decode(candidate, validate=True)
             has_blob = True
             reasons.append("base64_blob")
             top = "high"

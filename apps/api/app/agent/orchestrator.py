@@ -176,18 +176,29 @@ async def run(
         return await _run_mock(caller, agent, history, chunks, trace_id, start, retrieval_status, sid, tenant_id, user_id)
 
     tool_calls_log: list[dict] = []
+    tool_results: list[dict] = []
+    chat_history: list[dict] = []
     loop_count = 0
     final_text = ""
 
     for loop_count in range(5):
-        resp = cohere.chat(history, tools=tools)
+        resp = cohere.chat(
+            history,
+            tools=tools,
+            tool_results=tool_results,
+            chat_history=chat_history,
+        )
         final_text = resp.text
+        # v1 returns the running conversation; echo it back on the next turn.
+        chat_history = resp.chat_history
         if not resp.tool_calls:
             break
 
+        tool_results = []
         for tc in resp.tool_calls:
             args = tc.get("arguments") or {}
             decision = policy_check(registry, caller, tc["name"], args)
+            call_ref = {"name": tc["name"], "parameters": args}
             if not decision.allow:
                 record_tool_call(
                     tenant_id, user_id, trace_id, tc["name"], args, None,
@@ -199,11 +210,10 @@ async def run(
                     {"tool": tc["name"], "reason": decision.reason, "arguments": args},
                 )
                 tool_calls_log.append({"tool": tc["name"], "status": "denied", "reason": decision.reason})
-                history.append(cohere.ChatMessage(
-                    role="tool",
-                    content=f"[denied] {tc['name']}: {decision.reason}",
-                    tool_call_id=tc.get("id", ""),
-                ))
+                tool_results.append({
+                    "call": call_ref,
+                    "outputs": [{"error": f"denied: {decision.reason}"}],
+                })
                 continue
 
             ctx = dict(caller, role=role)
@@ -221,11 +231,11 @@ async def run(
                 "latency_ms": result["latency_ms"],
                 "data": result.get("data") or {"error": result.get("error")},
             })
-            history.append(cohere.ChatMessage(
-                role="tool",
-                content=str(result.get("data") or result.get("error")),
-                tool_call_id=tc.get("id", ""),
-            ))
+            outputs = result.get("data") if result["ok"] else {"error": result.get("error")}
+            tool_results.append({"call": call_ref, "outputs": [outputs]})
+
+    if not final_text:
+        final_text = "I was unable to complete that request within the allowed number of steps."
 
     # Save assistant message
     service_client().table("agent_messages").insert(

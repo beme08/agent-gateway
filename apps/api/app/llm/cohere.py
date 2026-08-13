@@ -10,7 +10,7 @@ import hashlib
 import math
 import os
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 
 import httpx
@@ -31,6 +31,7 @@ class ChatResponse:
     text: str
     tool_calls: list[dict]
     usage: dict
+    chat_history: list[dict] = field(default_factory=list)
 
 
 def _hash_embed(text: str, dim: int = 1024) -> list[float]:
@@ -73,17 +74,35 @@ def embed_query(text: str) -> list[float]:
         return r.json()["embeddings"][0]
 
 
-def chat(messages: list[ChatMessage], tools: list[dict] | None = None, model: str | None = None) -> ChatResponse:
+def chat(
+    messages: list[ChatMessage],
+    tools: list[dict] | None = None,
+    model: str | None = None,
+    *,
+    tool_results: list[dict] | None = None,
+    chat_history: list[dict] | None = None,
+) -> ChatResponse:
+    """Call the Cohere v1 chat endpoint, handling the multi-step tool-loop.
+
+    v1 multi-step contract (per the Cohere docs):
+      - Turn 1:  `preamble` (system) + `message` (user) + `tools`. The model
+        returns `tool_calls` and empty `text`, plus a `chat_history`.
+      - Turn 2+: echo `chat_history` back, send `message=""` and the
+        `tool_results` list. The same `tools` must be passed again. Calls that
+        used `tool_results` must NOT be duplicated into `chat_history` (the
+        API assembles the conversation from the returned history + results).
+
+    Before this fix, only the last user message was sent (`_cohere_format`),
+    so tool results appended by the orchestrator never reached the model and
+    the agent could not actually iterate on tool output.
+    """
     s = get_settings()
     if not s.cohere_api_key:
         return _mock_chat(messages, tools or [])
-    # Real Cohere chat (Command R+ supports native tool use).
-    body: dict[str, Any] = {
-        "model": model or s.cohere_model,
-        "message": _cohere_format(messages),
-    }
-    if tools:
-        body["tools"] = tools
+
+    body = _build_v1_body(messages, tools or [], tool_results=tool_results, chat_history=chat_history)
+    body["model"] = model or s.cohere_model
+
     with httpx.Client(timeout=60) as client:
         r = client.post(
             "https://api.cohere.ai/v1/chat",
@@ -99,7 +118,45 @@ def chat(messages: list[ChatMessage], tools: list[dict] | None = None, model: st
         for t in raw_tools
     ]
     usage = data.get("meta", {}).get("billed_units", {}) or {}
-    return ChatResponse(text=text, tool_calls=tool_calls, usage=usage)
+    return ChatResponse(
+        text=text,
+        tool_calls=tool_calls,
+        usage=usage,
+        chat_history=data.get("chat_history") or [],
+    )
+
+
+def _build_v1_body(
+    messages: list[ChatMessage],
+    tools: list[dict],
+    tool_results: list[dict] | None,
+    chat_history: list[dict] | None,
+) -> dict[str, Any]:
+    """Assemble the v1 request body for a chat turn.
+
+    `messages` is the orchestrator's running list (system + user). It is only
+    consulted for the first turn; subsequent turns continue purely from the
+    echoed `chat_history` and `tool_results`.
+    """
+    body: dict[str, Any] = {}
+
+    if tool_results:
+        # Continuing a tool-call turn: v1 wants an empty current message and
+        # results referencing the calls the model just made.
+        body["message"] = ""
+        body["tool_results"] = tool_results
+        if chat_history:
+            body["chat_history"] = chat_history
+    else:
+        body["message"] = _cohere_format(messages)
+        if not chat_history:
+            sys_content = "\n\n".join(m.content for m in messages if m.role == "system").strip()
+            if sys_content:
+                body["preamble"] = sys_content
+
+    if tools:
+        body["tools"] = tools
+    return body
 
 
 def _cohere_format(messages: list[ChatMessage]) -> str:

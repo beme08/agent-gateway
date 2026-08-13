@@ -14,14 +14,18 @@ from ..llm import cohere
 from ..rag.chunk import chunk_text
 
 # Mapping of (tenant_slug) -> list of (filename, title, acl_tags)
+# Tags use containment semantics (`acl_tags <@ caller_tags`): a chunk is only
+# returned when every tag it carries is in the caller's granted set. `public`
+# is the widest grant (present in every role), so public-only tags are seen by
+# all roles. Do not mix a broad tag with a restricted one on the same chunk.
 SEED_DOCS: list[tuple[str, str, str, list[str]]] = [
-    ("acme",   "remote-work.md", "Acme Remote Work Policy", ["public", "hr_policy"]),
-    ("acme",   "sick-leave.md",  "Acme Sick Leave Policy",  ["public", "hr_policy"]),
-    ("acme",   "pto.md",         "Acme PTO Policy",         ["public", "hr_policy"]),
+    ("acme",   "remote-work.md", "Acme Remote Work Policy", ["public"]),
+    ("acme",   "sick-leave.md",  "Acme Sick Leave Policy",  ["public"]),
+    ("acme",   "pto.md",         "Acme PTO Policy",         ["public"]),
     ("acme",   "exec-comp.md",   "Acme Executive Compensation", ["executive"]),
-    ("globex", "remote-work.md", "Globex Remote Work Policy", ["public", "hr_policy"]),
-    ("globex", "sick-leave.md",  "Globex Sick Leave Policy",  ["public", "hr_policy"]),
-    ("globex", "pto.md",         "Globex PTO Policy",         ["public", "hr_policy"]),
+    ("globex", "remote-work.md", "Globex Remote Work Policy", ["public"]),
+    ("globex", "sick-leave.md",  "Globex Sick Leave Policy",  ["public"]),
+    ("globex", "pto.md",         "Globex PTO Policy",         ["public"]),
     ("globex", "exec-comp.md",   "Globex Executive Compensation", ["executive"]),
 ]
 

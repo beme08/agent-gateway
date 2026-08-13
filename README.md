@@ -49,6 +49,9 @@ Web tier deployed to Vercel. All four "Try as …" flows verified end-to-end aga
    - `supabase/migrations/0003_leave_functions.sql`
    - `supabase/migrations/0004_match_chunks.sql`
    - `supabase/migrations/0005_demo_reset.sql`
+   - `supabase/migrations/0006_leave_manager.sql`
+   - `supabase/migrations/0007_more_leave_types.sql`
+   - `supabase/migrations/0008_fix_acl_semantics.sql`
 4. **Run the seed**:
    - `supabase/seed/seed.sql` in the Supabase SQL editor.
 5. **Create demo users**:
