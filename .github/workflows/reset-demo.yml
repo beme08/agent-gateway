@@ -9,6 +9,12 @@ jobs:
   reset:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm install
       - name: Call reset-demo endpoint for both tenants
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}

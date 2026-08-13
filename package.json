@@ -5,7 +5,7 @@
   "description": "Multi-tenant agentic AI platform with RAG, role-gated tool execution, HR workflow automation, Supabase RLS, and audit tracing.",
   "workspaces": [
     "apps/web",
-    "apps/api"
+    "scripts"
   ],
   "scripts": {
     "dev:web": "cd apps/web && npm run dev",

@@ -1,6 +1,6 @@
 # Live Public Demo
 
-**Production URL**: https://agent-gateway-reqonacjn-beme08s-projects.vercel.app
+**Production URL**: https://agent-gateway-beme08s-projects.vercel.app
 
 This is a deployed, public, recruiter-safe demo. No login is required to see the landing page or to try the waitlist. To walk the full HR workflow, click any **"Try as …"** button on the landing page — that signs you in as a seeded demo user and routes you to the right dashboard.
 
@@ -18,11 +18,11 @@ This is a deployed, public, recruiter-safe demo. No login is required to see the
 
 ## What's not yet live
 
-- 🟡 **Agent chat** — the chat UI loads, the demo question chips appear, but pressing Send returns an error because the FastAPI service is not deployed yet. See "Deployment status" below.
+- (none blocking) — the Agent chat now works end-to-end through the deployed FastAPI service.
 
 ## How to walk the demo in 60 seconds
 
-1. Open the [production URL](https://agent-gateway-reqonacjn-beme08s-projects.vercel.app).
+1. Open the [production URL](https://agent-gateway-beme08s-projects.vercel.app).
 2. Click **"Try as Employee"**. You land on the leave page for `employee@acme.test` in Acme Corp.
 3. (Optional) Request time off. Or skip — there's usually a pending request already from the seed.
 4. From the same browser, click **"Try as Manager"**. You see the team queue with the pending request.
@@ -45,8 +45,8 @@ Same set with `@globex.test` for the second seeded tenant.
 
 | Tier | Host | Status |
 |---|---|---|
-| Web (Next.js 14) | Vercel — `beme08s-projects/agent-gateway` | ✅ Live, all 5 env vars set, production deployment is `cdd986d` |
-| API (FastAPI) | Render or Fly.io | 🟡 Deferred for the private beta. Dockerfile is committed at `apps/api/Dockerfile`; deploy steps in `docs/deployment.md` § 3. The live web demo runs the chat UI but the chat endpoint will 502 until the API is deployed. |
-| Database | Supabase (hosted) | ✅ 7 migrations applied, 10 demo users, 2 seeded tenants, full RLS |
+| Web (Next.js 14) | Vercel — `beme08s-projects/agent-gateway` | ✅ Live, env vars set, production deployment is `agent-gateway-ffop00ng3-beme08s-projects.vercel.app` |
+| API (FastAPI) | Render — `agent-gateway` service (Frankfurt, free plan) | ✅ Live at `https://governor-chk2.onrender.com`. Health `/healthz`, `/v1/balances`, and `/v1/agent/chat` verified. Deployed from `main` via the committed `render.yaml` blueprint (`apps/api/Dockerfile`). |
+| Database | Supabase (hosted) | ✅ 8 migrations applied (incl. `0008_fix_acl_semantics.sql`), 10 demo users, 2 seeded tenants, full RLS |
 
-The "Agent chat" UI works (renders, accepts input, shows demo questions) but the chat endpoint currently 502s because `AGENT_API_URL` on Vercel points to a placeholder. After the API is deployed, update the Vercel env var with the real URL.
+The "Agent chat" UI works end-to-end: `NEXT_PUBLIC_AGENT_API_URL` on Vercel points to the live Render URL, so the chat sends to the real FastAPI service.
