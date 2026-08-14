@@ -5,11 +5,11 @@ import { createClient } from "./supabase/server";
 
 const DEMO_PASSWORD = "demo1234";
 
-const ROLE_TO_EMAIL: Record<string, { tenant: "acme" | "globex"; email: string; route: string }> = {
-  employee: { tenant: "acme", email: "employee@acme.test", route: "/leave" },
-  manager:  { tenant: "acme", email: "manager@acme.test",  route: "/leave/approvals" },
-  admin:    { tenant: "acme", email: "admin@acme.test",    route: "/audit" },
-  viewer:   { tenant: "acme", email: "viewer@acme.test",   route: "/agents/hr-policy-agent" },
+const ROLE_TO_EMAIL: Record<string, { email: string }> = {
+  employee: { email: "employee@acme.test" },
+  manager:  { email: "manager@acme.test" },
+  admin:    { email: "admin@acme.test" },
+  viewer:   { email: "viewer@acme.test" },
 };
 
 export async function signInAsDemoUser(role: keyof typeof ROLE_TO_EMAIL) {
@@ -23,7 +23,9 @@ export async function signInAsDemoUser(role: keyof typeof ROLE_TO_EMAIL) {
   if (error) throw new Error(error.message);
   // Pin the active tenant to acme for the demo buttons (the demo user is a
   // member of both tenants via create_demo_users.ts; we pick the Acme side).
-  redirect(spec.route);
+  // Land every persona on the dashboard so the agent chat, leave, approvals,
+  // and audit are all one click away regardless of role.
+  redirect("/dashboard");
 }
 
 export async function signOut() {
