@@ -194,6 +194,7 @@ async def _reject_time_off_request(arguments: dict, context: dict) -> dict:
 
 def build_registry() -> "ToolRegistry":
     from .registry import ToolRegistry
+    from .support_tools import SUPPORT_TOOLS
     reg = ToolRegistry()
     for schema, handler in [
         (search_documents_schema, _search_documents),
@@ -203,6 +204,7 @@ def build_registry() -> "ToolRegistry":
         (cancel_time_off_request_schema, _cancel_time_off_request),
         (approve_time_off_request_schema, _approve_time_off_request),
         (reject_time_off_request_schema, _reject_time_off_request),
+        *SUPPORT_TOOLS,
     ]:
         reg.register(ToolDef(schema=schema, handler=handler))
     return reg

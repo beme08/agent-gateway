@@ -74,4 +74,29 @@ Final answer streamed to browser
 - **Tool-execution authorization** (always enforced server-side by the gateway).
 - **Business workflow approval** (manager approves a `pending` leave request).
 
-`create_time_off_request` is workflow-pending, not tool-blocked. The `dangerous` tool flag is scaffolded for future `send_email` / `run_sql` / `external_api_call` tools but unused in MVP.
+`create_time_off_request` is workflow-pending, not tool-blocked. The `dangerous` tool flag is superseded by explicit risk tiers (below).
+
+## Support Operations environment (second deployment)
+
+The same gateway serves a second operational environment. Differences are
+configuration, not architecture:
+
+```mermaid
+flowchart TB
+  T[Support Ticket] -->|POST /v1/support/tickets/{id}/run| Orch[Same orchestrator]
+  Orch --> Inj2[Prompt-injection detector on ticket body]
+  Orch --> RAG2[support_kb ACL-filtered retrieval]
+  Orch --> LLM[ox-alpha via OpenRouter<br/>provider chain + failover]
+  LLM --> GW[Tool Gateway: policy + risk tiers + constraints]
+  GW -->|auto| Act[restart_service / notify_slack / github_issue]
+  GW -->|approval_required| App[action_approvals → human → policy re-check → execute]
+  GW -->|prohibited| Deny[denied unconditionally + security_event]
+  Act --> Ver[verify_service_health post-condition gate]
+  Ver --> Rem[(remediation_actions)]
+  App --> Adapters[Mock adapters: ticketing / observability / deployment / github / slack]
+```
+
+Control model for every action:
+`identity → authorization → prohibited gate → argument validation → risk policy → approval if required → execution → verification → audit`.
+
+Details: [`docs/support-ops/`](support-ops/DISCOVERY.md).

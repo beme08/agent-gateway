@@ -77,9 +77,40 @@ def _insert_chunks(document_id: str, tenant_id: str, acl_tags: list[str], texts:
         service_client().table("document_chunks").insert(rows[i : i + 50]).execute()
 
 
+def _backfill_chunk_embeddings() -> None:
+    """Embed DB-seeded chunks that lack embeddings (e.g. support-KB seeds).
+
+    Idempotent: only touches rows with embedding IS NULL. Uses the same
+    embed_documents path as file ingestion (Cohere when keyed, deterministic
+    local hash otherwise) so queries and chunks always share a vector space.
+    """
+    res = (
+        service_client()
+        .table("document_chunks")
+        .select("id, content")
+        .is_("embedding", "null")
+        .limit(500)
+        .execute()
+    )
+    rows = res.data or []
+    if not rows:
+        return
+    embeddings = cohere.embed_documents([r["content"] for r in rows])
+    for row, emb in zip(rows, embeddings):
+        service_client().table("document_chunks").update({"embedding": emb}).eq("id", row["id"]).execute()
+    print(f"[seed_ingest] backfilled {len(rows)} chunk embeddings")
+
+
 async def run_seed_ingest() -> None:
+    # Embedding backfill runs regardless of the docs dir: DB-seeded chunks
+    # (e.g. support KB) need embeddings even when HR markdown files are absent.
+    try:
+        _backfill_chunk_embeddings()
+    except Exception as e:
+        print(f"[seed_ingest] embedding backfill failed (non-fatal): {e}")
+
     settings = get_settings()
-    docs_dir = Path(__file__).resolve().parents[3] / "supabase" / "seed" / "documents"
+    docs_dir = Path(__file__).resolve().parents[4] / "supabase" / "seed" / "documents"
     if not docs_dir.exists():
         # Fallback for when running from apps/api
         alt = Path(os.environ.get("SEED_DOCS_DIR", "/app/supabase/seed/documents"))

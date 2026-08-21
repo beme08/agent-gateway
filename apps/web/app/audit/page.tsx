@@ -11,16 +11,16 @@ export default async function AuditPage() {
   if (m.role !== "admin") redirect("/dashboard");
   const supabase = await createClient();
 
-  const [{ data: traces }, { data: toolCalls }, { data: events }, { data: tenant }] = await Promise.all([
+  const [{ data: traces }, { data: toolCalls }, { data: events }, { data: approvals }, { data: tenant }] = await Promise.all([
     supabase
       .from("agent_traces")
-      .select("id, user_id, user_message, final_status, latency_ms, retrieval_safety_status, input_safety_status, created_at, tool_loop_count")
+      .select("id, user_id, user_message, final_status, latency_ms, retrieval_safety_status, input_safety_status, created_at, tool_loop_count, llm_provider, model_name")
       .eq("tenant_id", m.tenant_id)
       .order("created_at", { ascending: false })
       .limit(50),
     supabase
       .from("tool_calls")
-      .select("id, tool_name, status, policy_decision, policy_reason, created_at, trace_id")
+      .select("id, tool_name, status, policy_decision, policy_reason, risk_tier, created_at, trace_id")
       .eq("tenant_id", m.tenant_id)
       .order("created_at", { ascending: false })
       .limit(50),
@@ -30,6 +30,12 @@ export default async function AuditPage() {
       .eq("tenant_id", m.tenant_id)
       .order("created_at", { ascending: false })
       .limit(50),
+    supabase
+      .from("action_approvals")
+      .select("id, tool_name, arguments, status, risk_tier, reason, requested_by, decided_by, execution_result, created_at")
+      .eq("tenant_id", m.tenant_id)
+      .order("created_at", { ascending: false })
+      .limit(20),
     supabase
       .from("tenants")
       .select("monthly_message_count, monthly_tool_call_count, document_count, storage_used_mb, max_messages_per_month, max_documents, max_storage_mb, plan, usage_period_start")
@@ -43,6 +49,7 @@ export default async function AuditPage() {
     denied: toolCalls?.filter((t: any) => t.status === "denied").length ?? 0,
     suspicious: events?.filter((e: any) => e.event_type === "suspicious_prompt" || e.event_type === "suspicious_chunk").length ?? 0,
   };
+  const pendingApprovals = (approvals || []).filter((a: any) => a.status === "pending").length;
 
   return (
     <main className="max-w-5xl mx-auto px-4 py-10">
@@ -62,6 +69,53 @@ export default async function AuditPage() {
         <Stat label="Denied calls"   value={counts.denied} danger={counts.denied > 0} />
         <Stat label="Suspicious events" value={counts.suspicious} danger={counts.suspicious > 0} />
       </section>
+
+      {(approvals || []).length > 0 && (
+        <section className="mb-8">
+          <h2 className="font-semibold mb-2">
+            Approval-gated actions
+            {pendingApprovals > 0 && (
+              <span className="ml-2 px-2 py-0.5 rounded text-xs bg-purple-100 text-purple-700">
+                {pendingApprovals} pending
+              </span>
+            )}
+          </h2>
+          <div className="card overflow-hidden">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-slate-600">
+                <tr>
+                  <th className="text-left p-2">Tool</th>
+                  <th className="text-left p-2">Tier</th>
+                  <th className="text-left p-2">Arguments</th>
+                  <th className="text-left p-2">Status</th>
+                  <th className="text-left p-2">When</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(approvals || []).map((a: any) => (
+                  <tr key={a.id} className="border-t border-slate-200 align-top">
+                    <td className="p-2"><code className="kbd">{a.tool_name}</code></td>
+                    <td className="p-2">
+                      <span className={`px-2 py-0.5 rounded text-xs ${
+                        a.risk_tier === "prohibited" ? "bg-red-100 text-red-700" :
+                        a.status === "pending" ? "bg-purple-100 text-purple-700" :
+                        "bg-slate-100 text-slate-600"}`}>{a.risk_tier}</span>
+                    </td>
+                    <td className="p-2 max-w-xs truncate font-mono text-xs text-slate-500">{JSON.stringify(a.arguments)}</td>
+                    <td className="p-2">
+                      <span className={
+                        a.status === "executed" ? "text-green-700" :
+                        a.status === "rejected" || a.status === "failed" ? "text-red-700" :
+                        "text-purple-700"}>{a.status}</span>
+                    </td>
+                    <td className="p-2 whitespace-nowrap text-slate-500">{new Date(a.created_at).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
 
       {tenant && (
         <section className="card p-4 mb-8">
@@ -84,6 +138,7 @@ export default async function AuditPage() {
                 <th className="text-left p-2">When</th>
                 <th className="text-left p-2">User message</th>
                 <th className="text-left p-2">Status</th>
+                <th className="text-left p-2">LLM</th>
                 <th className="text-left p-2">Loops</th>
                 <th className="text-left p-2">Latency</th>
                 <th className="p-2"></th>
@@ -99,6 +154,13 @@ export default async function AuditPage() {
                     {t.retrieval_safety_status !== "clean" && <span className="text-xs text-amber-600 mr-1">ret:{t.retrieval_safety_status}</span>}
                     {t.final_status}
                   </td>
+                  <td className="p-2 whitespace-nowrap">
+                    {t.llm_provider && <span className="text-xs px-1.5 py-0.5 rounded bg-slate-100 font-mono">{t.llm_provider}</span>}
+                    {!t.llm_provider && "—"}
+                    {typeof t.error_message === "string" && t.error_message.startsWith("provider failovers") && (
+                      <span className="ml-1 text-xs text-amber-600" title={t.error_message}>failover</span>
+                    )}
+                  </td>
                   <td className="p-2">{t.tool_loop_count}</td>
                   <td className="p-2">{t.latency_ms ?? "—"} ms</td>
                   <td className="p-2 text-right">
@@ -107,7 +169,7 @@ export default async function AuditPage() {
                 </tr>
               ))}
               {(!traces || traces.length === 0) && (
-                <tr><td colSpan={6} className="p-4 text-center text-slate-500">No traces yet — go chat with the agent.</td></tr>
+                <tr><td colSpan={7} className="p-4 text-center text-slate-500">No traces yet — go chat with the agent.</td></tr>
               )}
             </tbody>
           </table>
@@ -121,7 +183,15 @@ export default async function AuditPage() {
             {(toolCalls || []).map((t: any) => (
               <li key={t.id} className="card p-2">
                 <div className="flex justify-between">
-                  <span><code className="kbd">{t.tool_name}</code> · {t.status}</span>
+                  <span>
+                    <code className="kbd">{t.tool_name}</code> · {t.status}
+                    {t.risk_tier && t.risk_tier !== "auto" && (
+                      <span className={`ml-1 px-1.5 py-0.5 rounded text-xs ${
+                        t.risk_tier === "prohibited" ? "bg-red-100 text-red-700" :
+                        t.risk_tier === "approval_required" ? "bg-purple-100 text-purple-700" :
+                        "bg-slate-100"}`}>{t.risk_tier}</span>
+                    )}
+                  </span>
                   <span className="text-xs text-slate-500">{new Date(t.created_at).toLocaleString()}</span>
                 </div>
                 {t.policy_reason && <div className="text-xs text-slate-500 mt-1">{t.policy_reason}</div>}

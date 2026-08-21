@@ -25,8 +25,12 @@ export default async function Dashboard() {
       <section className="grid sm:grid-cols-2 gap-4">
         <Card title="HR Policy Agent" href="/agents/hr-policy-agent" desc="Ask policy questions and create / view leave requests." />
         <Card title="My leave"         href="/leave"                  desc="Balance, request time off, view your requests." />
+        <Card title="Support Operations" href="/support"              desc="Support Ops agent: triage, diagnosis, risk-tiered remediation, verification." />
         {(role === "manager" || role === "admin") && (
           <Card title="Approvals"        href="/leave/approvals"        desc="Approve or reject your team's pending leave requests." />
+        )}
+        {(role === "manager" || role === "admin") && (
+          <Card title="Agent action approvals" href="/support/approvals" desc="Review the agent's approval-required actions (scaling, rollbacks)." />
         )}
         {role === "admin" && (
           <Card title="Audit dashboard" href="/audit"                  desc="Traces, tool calls, and security events." />

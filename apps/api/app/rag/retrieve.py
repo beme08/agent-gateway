@@ -8,9 +8,9 @@ from ..llm import cohere
 
 ROLE_TAGS: dict[str, list[str]] = {
     "viewer":   ["public"],
-    "employee": ["public", "hr_policy"],
-    "manager":  ["public", "hr_policy", "manager_only"],
-    "admin":    ["public", "hr_policy", "manager_only", "executive"],
+    "employee": ["public", "hr_policy", "support_kb"],
+    "manager":  ["public", "hr_policy", "support_kb", "manager_only"],
+    "admin":    ["public", "hr_policy", "support_kb", "manager_only", "executive"],
 }
 
 

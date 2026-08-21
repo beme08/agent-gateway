@@ -20,7 +20,13 @@ def test_manager_includes_manager_only():
 
 def test_admin_has_all_tags():
     tags = accessible_tags("admin")
-    assert set(tags) == {"public", "hr_policy", "manager_only", "executive"}
+    assert set(tags) == {"public", "hr_policy", "support_kb", "manager_only", "executive"}
+
+
+def test_support_kb_visible_to_employee_and_above():
+    assert "support_kb" not in accessible_tags("viewer")
+    assert "support_kb" in accessible_tags("employee")
+    assert "support_kb" in accessible_tags("manager")
 
 
 def test_unknown_role_defaults_to_public():

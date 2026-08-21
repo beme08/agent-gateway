@@ -1,8 +1,26 @@
-"""Tool registry: declarative schemas for every tool the agent can call."""
+"""Tool registry: declarative schemas for every tool the agent can call.
+
+Guardrail model — every tool carries a risk tier that the policy engine
+enforces structurally, independent of the LLM, system prompt, caller role,
+or approval flow:
+
+  auto             agent may execute within tool constraints
+  approval_required  agent may propose only; a human approves; policy is
+                     re-evaluated at approval time before execution
+  prohibited       neither agent nor human approval can execute it through
+                   the gateway — denied unconditionally
+
+Enforcement order (see policy.check):
+  identity -> authorization -> prohibited gate -> scope rules ->
+  argument validation -> quota -> [approval if required] -> execution
+"""
 from __future__ import annotations
 
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Any, Awaitable, Callable
+from typing import Any
+
+RISK_TIERS = ("auto", "approval_required", "prohibited")
 
 
 @dataclass
@@ -11,8 +29,13 @@ class ToolSchema:
     description: str
     required_role: str
     parameters: dict  # JSON schema
-    dangerous: bool = False
+    dangerous: bool = False  # legacy flag; superseded by risk_tier
     needs_manager_scope: bool = False
+    risk_tier: str = "auto"
+    # Argument constraints enforced by the policy engine BEFORE the executor
+    # touches any adapter: {arg: {"enum": [...], "min": n, "max": n,
+    # "max_length": n, "pattern": regex}}
+    constraints: dict = field(default_factory=dict)
 
 
 @dataclass
