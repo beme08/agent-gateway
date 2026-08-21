@@ -220,7 +220,8 @@ async def run(
             "I can't help with that request. If you have a question about HR policy "
             "or a leave request, I'm happy to help."
         )
-        _finish_trace(trace_id, refusal, "refused", start, retrieval_status, chunks)
+        _finish_trace(trace_id, refusal, "refused", start, retrieval_status, chunks,
+                      blocked=True, block_reason="suspicious_prompt")
         return AgentResult(answer=refusal, trace_id=trace_id, blocked=True, block_reason="suspicious_prompt")
 
     # Build the agent prompt. Use ONLY the agent's allowed tools.
@@ -362,6 +363,7 @@ async def run(
     increment_message_count(tenant_id)
     error_note = f"provider failovers: {failover_log}" if failover_log else None
     _finish_trace(trace_id, final_text, "ok", start, retrieval_status, chunks,
+                  tool_calls_log=tool_calls_log,
                   tool_loop_count=loop_count + 1, error_message=error_note,
                   llm_provider=(provider_used or {}).get("name"),
                   model_name=(provider_used or {}).get("model"))
@@ -434,15 +436,64 @@ async def _run_mock(caller, agent, history, chunks, trace_id, start, retrieval_s
     return AgentResult(answer=text, tool_calls=tool_calls_log, trace_id=trace_id)
 
 
+def _classify_failure(
+    final_status: str,
+    blocked: bool,
+    block_reason: str | None,
+    tool_calls_log: list[dict],
+    chunks: list[dict],
+) -> tuple[str, dict]:
+    """Deterministic failure taxonomy for error analysis (see migration 0013).
+
+    Priority order matters: guardrail outcomes outrank tool noise, provider
+    failures outrank everything (nothing else could run)."""
+    notes: dict = {}
+    if blocked:
+        return ("injection_blocked" if block_reason == "suspicious_prompt"
+                else "policy_denied"), {"block_reason": block_reason}
+    if final_status == "error":
+        return "provider_error", {}
+    if final_status == "refused":
+        return "injection_blocked", {"block_reason": block_reason}
+    if any(tc.get("status") == "denied" for tc in tool_calls_log):
+        denied = [tc["tool"] for tc in tool_calls_log if tc.get("status") == "denied"]
+        return "policy_denied", {"denied_tools": denied}
+    arg_fails = [tc.get("reason") for tc in tool_calls_log
+                 if tc.get("status") == "denied" and "argument" in (tc.get("reason") or "")]
+    if arg_fails:
+        return "argument_error", {"reasons": arg_fails}
+    if any(tc.get("status") == "pending_approval" for tc in tool_calls_log):
+        # Not a failure — an approval-gated outcome; recorded as none with note.
+        notes["approval_gated"] = [tc["tool"] for tc in tool_calls_log
+                                   if tc.get("status") == "pending_approval"]
+        return "none", notes
+    if any(tc.get("status") == "error" for tc in tool_calls_log):
+        failed = [tc["tool"] for tc in tool_calls_log if tc.get("status") == "error"]
+        return "tool_error", {"tools": failed}
+    if not chunks:
+        return "retrieval_miss", {}
+    return "none", notes
+
+
 def _finish_trace(trace_id, answer, status, start, retrieval_status, chunks,
+                  tool_calls_log=None, blocked=False, block_reason=None,
                   tool_loop_count=0, error_message=None, llm_provider=None, model_name=None):
     try:
+        failure_class, failure_notes = ("none", {})
+        if status in ("error", "refused") or blocked or tool_calls_log is not None:
+            failure_class, failure_notes = _classify_failure(
+                status, blocked, block_reason, tool_calls_log or [], chunks,
+            )
+        if error_message and "provider failovers" in (error_message or ""):
+            failure_notes["failovers"] = error_message
         update = {
             "retrieved_chunk_ids": [c["id"] for c in chunks],
             "retrieval_safety_status": retrieval_status,
             "tool_loop_count": tool_loop_count,
             "final_status": status,
             "latency_ms": int((time.time() - start) * 1000),
+            "failure_class": failure_class,
+            "failure_notes": failure_notes,
         }
         if error_message:
             update["error_message"] = error_message

@@ -35,13 +35,27 @@ class ChatResponse:
 
 
 def _hash_embed(text: str, dim: int = 1024) -> list[float]:
-    """Deterministic 1024-dim embedding from text. Good enough for offline UI."""
-    seed = int(hashlib.sha256(text.encode("utf-8")).hexdigest()[:8], 16)
-    vec = []
-    for i in range(dim):
-        # simple LCG seeded by i
-        v = math.sin(seed * (i + 1)) * 10000.0
-        vec.append(v - math.floor(v))
+    """Deterministic offline embedding: lexical hashing trick.
+
+    Each token contributes to a few fixed dimensions derived from its own
+    hash, so texts sharing vocabulary land near each other — cosine
+    similarity measures term overlap. (The previous whole-text hash produced
+    unrelated vectors per text, making pgvector retrieval meaningless
+    offline.) Set COHERE_API_KEY for production semantic embeddings; this
+    path keeps the demo fully deterministic without one.
+    """
+    import hashlib as _hl
+
+    vec = [0.0] * dim
+    tokens = re.findall(r"[a-z0-9]+", text.lower())
+    for tok in tokens:
+        h = _hl.md5(tok.encode("utf-8")).digest()
+        idx = int.from_bytes(h[:4], "big") % dim
+        sign = 1.0 if h[4] % 2 == 0 else -1.0
+        vec[idx] += sign
+        # second, shifted index softens collisions
+        idx2 = int.from_bytes(h[5:9], "big") % dim
+        vec[idx2] += sign * 0.5
     norm = math.sqrt(sum(x * x for x in vec)) or 1.0
     return [x / norm for x in vec]
 
