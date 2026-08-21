@@ -42,7 +42,7 @@ only missing piece to make the full demo — and the interview story — real.
    | `ENABLE_PUBLIC_UPLOAD` | `false` |
 5. **Deploy Web Service**. First boot may take ~10s while `seed_ingest`
    embeds the HR documents (non-fatal if it fails).
-6. When healthy, note the public URL, e.g. `https://agent-gateway-api.onrender.com`.
+6. When healthy, note the public URL, e.g. `https://governor-chk2.onrender.com`.
 
 > Note: `render.yaml` at the repo root is a Blueprint with the same settings —
 > you can also deploy via **New → Blueprint** and it will fill most fields,
@@ -51,13 +51,13 @@ only missing piece to make the full demo — and the interview story — real.
 ## Verify the API
 
 ```bash
-curl https://agent-gateway-api.onrender.com/healthz   # expect {"ok":true}
+curl https://governor-chk2.onrender.com/healthz   # expect {"ok":true}
 ```
 
 ## Wire the web tier (Vercel dashboard)
 
 1. Open the agent-gateway project in Vercel → **Settings → Environment Variables**.
-2. Set `AGENT_API_URL` = `https://agent-gateway-api.onrender.com` (no trailing slash).
+2. Set `AGENT_API_URL` = `https://governor-chk2.onrender.com` (no trailing slash).
    If the deployed app uses `NEXT_PUBLIC_AGENT_API_URL`, set that too with the same value.
    `apps/web/lib/agent-client.ts` reads `NEXT_PUBLIC_AGENT_API_URL` first — for client-side
    code the value is baked in at build time, so set it and redeploy.

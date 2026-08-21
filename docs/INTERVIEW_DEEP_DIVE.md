@@ -160,7 +160,7 @@ ones, and documented the rest honestly as production hardening."*
 ## 5. The 502 incident (honest, still-open framing)
 
 - Reality at interview time: web tier **200**, API **not deployed**
-  (`agent-gateway-api.onrender.com/healthz` → 404). PREP_PACK's runbook exists,
+  (`agent-gateway-api.onrender.com/healthz` → 404 — NOTE: that hostname is NOT our service; the real API is governor-chk2.onrender.com). PREP_PACK's runbook exists,
   deployment is blocked on Supabase keys for the right project + Vercel re-auth.
 - **Tell it as a diagnosis story, not a victory**:
 

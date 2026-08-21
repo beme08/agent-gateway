@@ -36,7 +36,7 @@ The Dockerfile in `apps/api/` builds and runs the FastAPI app. Recommended (Rend
    - `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_JWT_SECRET`
    - `COHERE_API_KEY` (optional)
    - `AGENT_API_KEY` (any random string)
-5. Deploy. Note the public URL (e.g. `https://agent-gateway-api.onrender.com`).
+5. Deploy. Note the public URL (e.g. `https://governor-chk2.onrender.com`).
 
 On first boot, the API runs `seed_ingest.py` to embed the four HR documents with ACL tags. The first request can take ~10s while this runs.
 
