@@ -66,7 +66,7 @@ curl https://agent-gateway-api.onrender.com/healthz   # expect {"ok":true}
    GitHub auto-deploys stay blocked (`TEAM_ACCESS_REQUIRED`). Check with `git config user.email`.
 ## Full end-to-end verification (the interview demo)
 
-1. `https://agent-gateway-reqonacjn-beme08s-projects.vercel.app`
+1. `https://web-nine-roan-66.vercel.app`
 2. Click **Try as Employee** → land on `/leave` as `employee@acme.test`
 3. Open the agent chat, ask: *"I'm sick today, can you request sick leave for me?"*
 4. Expect: cited sick-leave policy + a tool-call badge → pending leave request appears
