@@ -55,6 +55,8 @@ Web tier deployed to Vercel. All four "Try as …" flows verified end-to-end aga
    - `supabase/migrations/0009_agent_model.sql`
    - `supabase/migrations/0010_support_ops.sql`
    - `supabase/migrations/0011_support_reset.sql`
+   - `supabase/migrations/0012_support_reseed.sql`
+   - `supabase/migrations/0013_failure_taxonomy.sql`
 4. **Run the seed**:
    - `supabase/seed/seed.sql` in the Supabase SQL editor.
    - `supabase/seed/support_ops_seed.sql` (Support Operations environment).

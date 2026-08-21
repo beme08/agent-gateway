@@ -12,7 +12,7 @@
                 ▲▲▲▲▲   scripts/demo_tests.sh (real API, real DB, real LLM)
                ▲▲▲▲▲▲
               ▲▲▲▲▲▲▲   3. Deterministic agent evaluation
-             ▲▲▲▲▲▲▲▲   app/evals/ — 16 scenarios, 56 assertions (CI)
+             ▲▲▲▲▲▲▲▲   app/evals/ — 16 scenarios, 59 assertions (CI)
             ▲▲▲▲▲▲▲▲▲
            ▲▲▲▲▲▲▲▲▲▲   2. Component contracts
           ▲▲▲▲▲▲▲▲▲▲▲   provider tool-loops, failover chains, approval lifecycle

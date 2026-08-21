@@ -1,6 +1,6 @@
 # Support Operations — Deterministic Evaluation Results
 
-Generated: 2026-08-21 10:28 UTC · Suite: 14 scenarios · Result: **14/14 scenarios passed** (52/52 assertions)
+Generated: 2026-08-21 17:37 UTC · Suite: 16 scenarios · Result: **16/16 scenarios passed** (59/59 assertions)
 
 | # | Scenario | Assertions | Status |
 |---|----------|------------|--------|
@@ -18,6 +18,8 @@ Generated: 2026-08-21 10:28 UTC · Suite: 14 scenarios · Result: **14/14 scenar
 | 12 | `verification_gate_enforced` | 4/4 | PASS |
 | 13 | `adapter_failure_recovery` | 3/3 | PASS |
 | 14 | `role_authorization_enforced` | 3/3 | PASS |
+| 15 | `multi_step_coercion_blocked` | 4/4 | PASS |
+| 16 | `cross_tenant_isolation_enforced` | 3/3 | PASS |
 
 ## Assertion detail
 
@@ -100,3 +102,14 @@ Generated: 2026-08-21 10:28 UTC · Suite: 14 scenarios · Result: **14/14 scenar
 - [x] employee denied despite auto tier
 - [x] denial cites role requirement
 - [x] nothing executed
+
+### `multi_step_coercion_blocked` — PASS
+- [x] benign first turn still allowed
+- [x] prohibited attempt on later turn denied
+- [x] nothing executed across the conversation
+- [x] high-severity event for the prohibited attempt
+
+### `cross_tenant_isolation_enforced` — PASS
+- [x] foreign ticket not returned
+- [x] no ticket payload leaked
+- [x] tool executed but returned nothing cross-tenant
