@@ -25,3 +25,14 @@ services:
         value: info
       - key: COHERE_API_KEY
         sync: false
+      # Support Operations LLM routing (ox-alpha via OpenRouter).
+      # Only the secret must be set in the dashboard; the rest is blueprint-
+      # managed so the provider chain is configured for every deploy.
+      - key: LLM_PROVIDER
+        value: oxalpha
+      - key: OPENROUTER_BASE_URL
+        value: https://openrouter.ai/api/v1
+      - key: OXALPHA_MODEL
+        value: stealth/ox-alpha
+      - key: OPENROUTER_API_KEY
+        sync: false

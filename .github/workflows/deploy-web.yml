@@ -1,0 +1,40 @@
+name: Deploy web (Vercel)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    # Inert until VERCEL_TOKEN exists as a repo secret. Preferred alternative:
+    # install the Vercel GitHub App (https://vercel.com/github) and run
+    # `vercel git connect https://github.com/beme08/agent-gateway.git` once —
+    # then native integration handles deploys and this job stays as backup.
+    if: ${{ github.repository == 'beme08/agent-gateway' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - name: Check for VERCEL_TOKEN
+        id: token
+        env:
+          HAS_TOKEN: ${{ secrets.VERCEL_TOKEN != '' }}
+        run: echo "present=$HAS_TOKEN" >> "$GITHUB_OUTPUT"
+      - name: Deploy to Vercel (production)
+        if: steps.token.outputs.present == 'true'
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: team_DjdX7eipoK1fON39xOgtTk3O
+          VERCEL_PROJECT_ID: prj_sUOFAoCm04bv6w3XXkPbMeiUOv71
+        run: |
+          npm i -g vercel@latest
+          npx vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          npx vercel build --prod --token="$VERCEL_TOKEN"
+          npx vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
