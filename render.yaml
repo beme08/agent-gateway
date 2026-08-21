@@ -25,6 +25,15 @@ services:
         value: info
       - key: COHERE_API_KEY
         sync: false
+      # Original generic OpenAI-compatible fallback (FreeLLMAPI etc).
+      # Set these in the dashboard to arm the middle link of the failover
+      # chain: oxalpha -> openai_compat -> cohere -> offline mock.
+      - key: LLM_BASE_URL
+        sync: false
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: auto
       # Support Operations LLM routing (ox-alpha via OpenRouter).
       # Only the secret must be set in the dashboard; the rest is blueprint-
       # managed so the provider chain is configured for every deploy.
