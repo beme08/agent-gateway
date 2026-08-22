@@ -95,7 +95,6 @@ export default function LandingPage() {
       <SupportOps />
       <Features />
       <UseCases />
-      <ArchitectureNotes />
       <UnderTheHood />
       <SiteFooter />
     </main>
@@ -644,30 +643,12 @@ function UseCases() {
   );
 }
 
-function ArchitectureNotes() {
+function UnderTheHood() {
   return (
     <section id="architecture" className="max-w-6xl mx-auto px-6 py-20">
       <div className="rounded-xl border border-hairline bg-white p-8">
         <div className="text-sm font-medium text-ink-muted">Under the hood</div>
         <h2 className="mt-2 text-2xl font-medium text-ink tracking-headline">Architecture highlights</h2>
-        <ul className="mt-5 grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-ink-muted list-disc list-inside">
-          <li>Multi-tenant Postgres with RLS keyed off <code className="kbd">tenant_memberships</code>.</li>
-          <li>ACL-filtered pgvector retrieval — restricted tags never enter the prompt.</li>
-          <li>Tool gateway with role gates, schema validation, and per-call policy decisions.</li>
-          <li>Centralized leave transitions (Postgres functions) shared by UI and agent.</li>
-          <li>Prompt-injection defense-in-depth: untrusted block, pattern detector, audit log.</li>
-          <li>Full audit traces for retrievals, tool calls, blocked events, latencies.</li>
-        </ul>
-      </div>
-    </section>
-  );
-}
-
-function UnderTheHood() {
-  return (
-    <section className="max-w-6xl mx-auto px-6 py-20">
-      <div className="rounded-xl border border-hairline bg-white p-8">
-        <h2 className="text-2xl font-medium text-ink tracking-headline">Under the hood</h2>
         <ul className="mt-5 grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-ink-muted list-disc list-inside">
           <li>Multi-tenant Postgres with RLS keyed off <code className="kbd">tenant_memberships</code>.</li>
           <li>ACL-filtered pgvector retrieval — restricted tags never enter the prompt.</li>
