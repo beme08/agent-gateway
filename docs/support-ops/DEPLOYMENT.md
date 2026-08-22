@@ -87,33 +87,39 @@ The Support Ops agent is a row in `agents` (seeded):
 
 ## 6. LLM provider configuration
 
-The provider chain is `openai_compat → oxalpha → cohere → offline mock`,
-and the **deployed default serves a fast frontier model** so the public demo
-answers in seconds, not minutes:
+Provider chain: `oxalpha → openai_compat → cohere → offline mock`. The
+default is ox-alpha because it is currently the only model serving free on
+this OpenRouter key (the shared free-tier bucket for other models is
+exhausted → 403). Same gateway, same guardrails, same eval suite regardless
+of which model answers.
 
 ```bash
-# .env — fast public-demo default
-LLM_PROVIDER=openai_compat
-LLM_BASE_URL=https://openrouter.ai/api/v1
-LLM_MODEL=google/gemini-2.5-flash   # ~0.4s vs ox-alpha ~15s measured
+# .env — current deployed default
+LLM_PROVIDER=oxalpha
 OPENROUTER_API_KEY=sk-or-...
-# LLM_API_KEY optional: falls back to OPENROUTER_API_KEY when unset
+OXALPHA_MODEL=stealth/ox-alpha
 ```
 
-- **Why fast by default:** the gateway is model-agnostic (same guardrails,
-  same eval suite, same audit), so latency is purely the serving model's.
-  ox-alpha measured ~15s locally / ~82s from Render free-tier; gemini-2.5
-  flash ~0.4s on the same payload. See `docs/support-ops/LIVE_DEMO.md`.
-- **fx-alpha for demos/traces:** set `LLM_PROVIDER=oxalpha` and its
-  `OXALPHA_MODEL`; the chain then puts ox-alpha first with everything else
-  as failover. No code changes.
-- **Failover:** if the primary errors (trial expired, 402, timeout, rate
-  limit), the request falls through the chain; the trace records which
-  provider actually served the run (`agent_traces.llm_provider`) plus
-  failover evidence.
-- **`LLM_API_KEY` fallback:** the generic client reuses
-  `OPENROUTER_API_KEY` when `LLM_API_KEY` is unset, so the fast path arms
-  automatically with the key already in the dashboard.
+**Fast-path recipe (one-line change when quota headroom exists):** measured
+against the real gateway payload, ox-alpha is ~15–26s per round trip from a
+fast host (and ~82s from Render free-tier egress) while
+`google/gemini-2.5-flash` answers in ~0.4s:
+
+```bash
+LLM_PROVIDER=openai_compat
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemini-2.5-flash
+```
+
+- `LLM_API_KEY` is optional: it falls back to `OPENROUTER_API_KEY`, so only
+  `LLM_PROVIDER` + `LLM_MODEL` need editing when the fast bucket refills.
+- FreeLLMAPI/cerebras: targeted but currently blocked (model not in the
+  local catalog under the tested id; Cerebras blocks raw clients with
+  Cloudflare 1010 — FreeLLMAPI's own adapter is the sanctioned path once a
+  provider has headroom).
+- Failover is automatic: if the primary errors (quota, 402, timeout), the
+  request falls through the chain and the trace records which provider
+  served it (`agent_traces.llm_provider`).
 - Per-agent override: `agents.provider` / `agents.model` columns route a
   single agent without touching global config.
 

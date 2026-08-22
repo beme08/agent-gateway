@@ -26,24 +26,26 @@ services:
       - key: COHERE_API_KEY
         sync: false
       # --- Provider chain ---------------------------------------------------
-      # Public demo default: a FAST frontier model through the generic
-      # OpenAI-compatible client (measured ~0.4s vs ox-alpha ~15s locally /
-      # ~82s from Render free-tier). Same gateway, same guardrails, same
-      # eval suite — only the serving model differs.
+      # Default provider is ox-alpha (the only model currently serving free
+      # on this OpenRouter key — the shared free-tier bucket for gemini-2.5
+      # flash and other fast models is exhausted, returning 403). The generic
+      # OpenAI-compatible client plus this blueprint make a FAST path a
+      # one-line change when quota headroom exists:
       #
-      #   LLM_API_KEY falls back to OPENROUTER_API_KEY when unset, so this
-      #   arms automatically with the key already in the dashboard.
+      #   LLM_PROVIDER=openai_compat
+      #   LLM_BASE_URL=https://openrouter.ai/api/v1
+      #   LLM_MODEL=google/gemini-2.5-flash   (~0.4s vs ox-alpha ~15-26s)
       #
-      # Flip back to ox-alpha for an interview/frontier trace:
-      #   LLM_PROVIDER=oxalpha
+      #   LLM_API_KEY falls back to OPENROUTER_API_KEY when unset, so only
+      #   LLM_PROVIDER + LLM_MODEL need editing.
       - key: LLM_PROVIDER
-        value: openai_compat
+        value: oxalpha
       - key: LLM_BASE_URL
         value: https://openrouter.ai/api/v1
       - key: LLM_API_KEY
         sync: false
       - key: LLM_MODEL
-        value: google/gemini-2.5-flash
+        value: stealth/ox-alpha
       - key: OPENROUTER_BASE_URL
         value: https://openrouter.ai/api/v1
       - key: OPENROUTER_API_KEY
