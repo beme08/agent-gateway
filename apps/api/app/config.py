@@ -23,7 +23,9 @@ class Settings(BaseModel):
     # /v1/chat/completions endpoint). When LLM_BASE_URL + LLM_API_KEY are set,
     # the orchestrator routes tool calls through here instead of Cohere.
     llm_base_url: str = os.getenv("LLM_BASE_URL", "")
-    llm_api_key: str = os.getenv("LLM_API_KEY", "")
+    # LLM_API_KEY falls back to OPENROUTER_API_KEY so the generic client
+    # arms automatically with the key already configured for ox-alpha.
+    llm_api_key: str = os.getenv("LLM_API_KEY", "") or os.getenv("OPENROUTER_API_KEY", "")
     # "auto" = the upstream router picks the best free model (FreeLLMAPI).
     llm_model: str = os.getenv("LLM_MODEL", "auto")
     oai_timeout_s: int = int(os.getenv("OAI_TIMEOUT_S", "120"))

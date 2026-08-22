@@ -85,29 +85,41 @@ The Support Ops agent is a row in `agents` (seeded):
   which the agent can *see* but the gateway will never execute
 - `provider`: `oxalpha` (per-agent LLM routing; HR agents keep their default)
 
-## 6. LLM provider configuration (ox-alpha)
+## 6. LLM provider configuration
+
+The provider chain is `openai_compat → oxalpha → cohere → offline mock`,
+and the **deployed default serves a fast frontier model** so the public demo
+answers in seconds, not minutes:
 
 ```bash
-# .env — ox-alpha via OpenRouter
-LLM_PROVIDER=oxalpha
+# .env — fast public-demo default
+LLM_PROVIDER=openai_compat
+LLM_BASE_URL=https://openrouter.ai/api/v1
+LLM_MODEL=google/gemini-2.5-flash   # ~0.4s vs ox-alpha ~15s measured
 OPENROUTER_API_KEY=sk-or-...
-OXALPHA_MODEL=stealth/ox-alpha
+# LLM_API_KEY optional: falls back to OPENROUTER_API_KEY when unset
 ```
 
-- Explicit selection: `LLM_PROVIDER=oxalpha` puts ox-alpha first in the chain.
-- **Failover:** if ox-alpha errors (expired trial, 402, timeout), the request
-  transparently falls through to the next configured provider
-  (`openai_compat`, then `cohere`); the trace records which provider served
-  the run (`agent_traces.llm_provider`) plus failover evidence.
-- **Reverting after the trial:** remove `LLM_PROVIDER` /
-  `OPENROUTER_API_KEY`. The chain returns to the legacy default order
-  (openai_compat → cohere). No code changes.
+- **Why fast by default:** the gateway is model-agnostic (same guardrails,
+  same eval suite, same audit), so latency is purely the serving model's.
+  ox-alpha measured ~15s locally / ~82s from Render free-tier; gemini-2.5
+  flash ~0.4s on the same payload. See `docs/support-ops/LIVE_DEMO.md`.
+- **fx-alpha for demos/traces:** set `LLM_PROVIDER=oxalpha` and its
+  `OXALPHA_MODEL`; the chain then puts ox-alpha first with everything else
+  as failover. No code changes.
+- **Failover:** if the primary errors (trial expired, 402, timeout, rate
+  limit), the request falls through the chain; the trace records which
+  provider actually served the run (`agent_traces.llm_provider`) plus
+  failover evidence.
+- **`LLM_API_KEY` fallback:** the generic client reuses
+  `OPENROUTER_API_KEY` when `LLM_API_KEY` is unset, so the fast path arms
+  automatically with the key already in the dashboard.
 - Per-agent override: `agents.provider` / `agents.model` columns route a
   single agent without touching global config.
 
-## 7. Deployment process
-
 Same infrastructure as the HR environment:
+
+## 7. Deployment process
 
 | Component | Target | Notes |
 |---|---|---|

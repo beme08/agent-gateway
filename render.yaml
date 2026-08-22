@@ -25,23 +25,30 @@ services:
         value: info
       - key: COHERE_API_KEY
         sync: false
-      # Original generic OpenAI-compatible fallback (FreeLLMAPI etc).
-      # Set these in the dashboard to arm the middle link of the failover
-      # chain: oxalpha -> openai_compat -> cohere -> offline mock.
+      # --- Provider chain ---------------------------------------------------
+      # Public demo default: a FAST frontier model through the generic
+      # OpenAI-compatible client (measured ~0.4s vs ox-alpha ~15s locally /
+      # ~82s from Render free-tier). Same gateway, same guardrails, same
+      # eval suite — only the serving model differs.
+      #
+      #   LLM_API_KEY falls back to OPENROUTER_API_KEY when unset, so this
+      #   arms automatically with the key already in the dashboard.
+      #
+      # Flip back to ox-alpha for an interview/frontier trace:
+      #   LLM_PROVIDER=oxalpha
+      - key: LLM_PROVIDER
+        value: openai_compat
       - key: LLM_BASE_URL
-        sync: false
+        value: https://openrouter.ai/api/v1
       - key: LLM_API_KEY
         sync: false
       - key: LLM_MODEL
-        value: auto
-      # Support Operations LLM routing (ox-alpha via OpenRouter).
-      # Only the secret must be set in the dashboard; the rest is blueprint-
-      # managed so the provider chain is configured for every deploy.
-      - key: LLM_PROVIDER
-        value: oxalpha
+        value: google/gemini-2.5-flash
       - key: OPENROUTER_BASE_URL
         value: https://openrouter.ai/api/v1
-      - key: OXALPHA_MODEL
-        value: stealth/ox-alpha
       - key: OPENROUTER_API_KEY
         sync: false
+      - key: OXALPHA_MODEL
+        value: stealth/ox-alpha
+      # COHERE_API_KEY (if set) becomes the third link: openai_compat ->
+      # oxalpha -> cohere -> offline mock.

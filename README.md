@@ -18,7 +18,7 @@ Web tier deployed to Vercel. All four "Try as …" flows verified end-to-end aga
 - **Backend**: FastAPI (Python 3.11+)
 - **Database**: Supabase Postgres + pgvector + RLS
 - **Auth**: Supabase Auth (email/password)
-- **LLM**: Cohere `embed-english-v3.0` + `command-r-plus` (with deterministic local mock fallback)
+- **LLM**: pluggable provider chain — OpenAI-compatible fast frontier default (`google/gemini-2.5-flash` via OpenRouter), ox-alpha for frontier demos, Cohere fallback (with deterministic local mock fallback)
 - **Deployment**: Vercel (web) + Render/Fly.io (API) + Supabase hosted
 
 ## Repo layout
