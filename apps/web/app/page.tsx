@@ -1,5 +1,4 @@
 import { signInAsDemoUser } from "@/lib/demo-auth";
-import { WaitlistForm } from "@/components/waitlist-form";
 
 // Role cards for the demo. We do NOT use fictional names or quotes
 // anywhere in the public demo. Each role card uses a real faceless Pexels
@@ -91,11 +90,13 @@ export default function LandingPage() {
     <main className="bg-canvas">
       <Hero />
       <TrustStrip />
+      <RiskTiers />
       <Personas />
+      <SupportOps />
       <Features />
       <UseCases />
       <ArchitectureNotes />
-      <WaitlistCTA />
+      <UnderTheHood />
       <SiteFooter />
     </main>
   );
@@ -112,15 +113,18 @@ function Hero() {
             Public demo · live now
           </div>
           <h1 className="mt-5 text-4xl sm:text-5xl font-medium text-ink tracking-display">
-            The HR-grade AI gateway
+            LLM proposes. Gateway decides.
             <br className="hidden sm:block" />
-            <span className="text-accent-orange"> your people actually trust.</span>
+            <span className="text-accent-orange"> Every action audited.</span>
           </h1>
           <p className="mt-5 text-lg text-ink-muted max-w-2xl">
-            A multi-tenant agentic AI platform where an HR Policy Agent answers policy questions with
-            ACL-filtered retrieval, files time-off requests (vacation, PTO, sick, bereavement, parental,
-            personal, jury duty, unpaid leave) through role-gated tools, and records every retrieval
-            and decision to an immutable audit trail.
+            A multi-tenant agentic AI platform where agents operate on company systems — but only
+            through a server-side tool gateway that decides what&apos;s{" "}
+            <strong className="text-ink">allowed</strong>, what needs{" "}
+            <strong className="text-ink">human approval</strong>, and what&apos;s{" "}
+            <strong className="text-ink">structurally blocked</strong>. Two operational
+            environments, one gateway: HR policy with ACL-filtered RAG, and production incident
+            response with risk-tiered remediation.
           </p>
           <div className="mt-7 flex flex-wrap gap-3">
             <a
@@ -139,6 +143,13 @@ function Hero() {
           </div>
           <p className="mt-4 text-xs text-ink-muted">
             No signup. Click any role to sign in as a seeded demo user.
+          </p>
+          <p className="mt-1.5 text-xs text-ink-muted">
+            <span className="text-emerald-600 font-semibold">✓ Demo suite passing</span>
+            {" · "}last verified 2026-08-22 ·{" "}
+            <a className="underline" href="#architecture">
+              sanitized run summary
+            </a>
           </p>
         </div>
         <div className="lg:col-span-5">
@@ -239,6 +250,55 @@ function TrustStrip() {
             </div>
           </div>
         ))}
+      </div>
+    </section>
+  );
+}
+
+const RISK_TIERS = [
+  {
+    tier: "Auto",
+    style: "bg-emerald-100 text-emerald-700",
+    what: "Executes immediately",
+    examples: "restart service · health check · notify Slack · update ticket",
+  },
+  {
+    tier: "Approval",
+    style: "bg-purple-100 text-purple-700",
+    what: (
+      <>
+        Pauses as <code className="kbd">pending_approval</code> → human approves → gateway{" "}
+        <strong>re-checks policy</strong> → executes
+      </>
+    ),
+    examples: "rollback deployment · scale service",
+  },
+  {
+    tier: "Blocked",
+    style: "bg-red-100 text-red-700",
+    what: "Denied before authorization even runs — for all roles, including admin",
+    examples: "delete production data",
+  },
+] as const;
+
+function RiskTiers() {
+  return (
+    <section className="bg-white border-t border-hairline">
+      <div className="max-w-6xl mx-auto px-6 py-10">
+        <h2 className="text-sm font-medium text-ink-muted">
+          Every tool call passes the policy engine:
+        </h2>
+        <div className="mt-4 grid md:grid-cols-3 gap-4">
+          {RISK_TIERS.map((t) => (
+            <div key={t.tier} className="rounded-xl border border-hairline bg-canvas p-5">
+              <span className={`px-2 py-0.5 rounded text-xs font-semibold ${t.style}`}>
+                {t.tier}
+              </span>
+              <p className="mt-3 text-sm text-ink leading-relaxed">{t.what}</p>
+              <p className="mt-2 text-xs text-ink-muted">{t.examples}</p>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -399,6 +459,116 @@ function PhotoPlaceholder({ role }: { role: string }) {
   );
 }
 
+// The 12 Support Ops tools, mirrored from apps/api/app/agent/tools/support_tools.py.
+// Tier counts: 9 auto · 2 approval_required · 1 prohibited.
+const SUPPORT_TOOLS: { name: string; tier: "auto" | "approval" | "blocked"; desc: string }[] = [
+  { name: "get_ticket", tier: "auto", desc: "Retrieve ticket details" },
+  { name: "update_ticket", tier: "auto", desc: "Update ticket status and fields" },
+  { name: "search_knowledge", tier: "auto", desc: "Query the support knowledge base" },
+  { name: "query_service_health", tier: "auto", desc: "Check current service health" },
+  { name: "get_recent_deployments", tier: "auto", desc: "List recent deployment history" },
+  { name: "restart_service", tier: "auto", desc: "Restart a failing service" },
+  { name: "verify_service_health", tier: "auto", desc: "Confirm service health post-remediation" },
+  { name: "create_github_issue", tier: "auto", desc: "Open a tracking issue" },
+  { name: "notify_slack", tier: "auto", desc: "Post an alert to the on-call channel" },
+  { name: "rollback_deployment", tier: "approval", desc: "Roll back to a previous deployment — held pending human approval, then re-checked against policy before executing" },
+  { name: "scale_service", tier: "approval", desc: "Scale a service up or down — held pending human approval, then re-checked against policy before executing" },
+  { name: "delete_production_data", tier: "blocked", desc: "Structurally denied for all roles — even admin. Gate runs before authorization." },
+];
+
+const TIER_BADGE: Record<string, string> = {
+  auto: "bg-emerald-100 text-emerald-700",
+  approval: "bg-purple-100 text-purple-700",
+  blocked: "bg-red-100 text-red-700",
+};
+
+function SupportOps() {
+  return (
+    <section className="max-w-6xl mx-auto px-6 py-20">
+      <div className="max-w-2xl">
+        <div className="text-sm font-medium text-ink-muted">Support Operations</div>
+        <h2 className="mt-2 text-3xl font-medium text-ink tracking-headline">
+          Same gateway, different risk surface.
+        </h2>
+        <p className="mt-3 text-ink-muted">
+          The same tool gateway serves a second operational environment: production incident
+          response. An agent triages tickets, diagnoses issues, and proposes remediation across
+          12 tools — each one risk-tiered and enforced server-side. Sign in and open{" "}
+          <strong className="text-ink">Support Operations</strong> from the dashboard to run a
+          ticket and watch the decision chain build live.
+        </p>
+      </div>
+
+      <div className="mt-8 overflow-x-auto rounded-xl border border-hairline bg-white">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-hairline text-left text-xs text-ink-muted">
+              <th className="px-4 py-3 font-medium">#</th>
+              <th className="px-4 py-3 font-medium">Tool</th>
+              <th className="px-4 py-3 font-medium">Risk tier</th>
+              <th className="px-4 py-3 font-medium">What it does</th>
+            </tr>
+          </thead>
+          <tbody>
+            {SUPPORT_TOOLS.map((t, i) => (
+              <tr key={t.name} className="border-b border-hairline last:border-0">
+                <td className="px-4 py-2.5 text-ink-muted">{i + 1}</td>
+                <td className="px-4 py-2.5">
+                  <code className="kbd">{t.name}</code>
+                </td>
+                <td className="px-4 py-2.5">
+                  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${TIER_BADGE[t.tier]}`}>
+                    {t.tier}
+                  </span>
+                </td>
+                <td className="px-4 py-2.5 text-ink-muted">{t.desc}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-3 text-xs text-ink-muted">
+        9 auto · 2 approval · 1 blocked — enforced in{" "}
+        <code className="kbd">apps/api/app/agent/tools/policy.py</code>, not in the prompt.
+      </div>
+
+      <div className="mt-10 grid md:grid-cols-2 gap-5">
+        <div className="rounded-xl border border-hairline bg-white p-5">
+          <h3 className="font-medium text-ink">Denied call — real trace, sanitized</h3>
+          <pre className="mt-3 text-xs text-ink-muted whitespace-pre-wrap font-mono leading-relaxed">{`tool:       delete_production_data
+risk_tier:  PROHIBITED
+caller:     Support Ops agent (admin session)
+
+decision:   DENIED — prohibited gate (pre-authorization)
+reason:     structurally denied for all roles;
+            gate runs before authorization —
+            even admin cannot override
+
+audit:      tool_calls row written (status: denied)
+            security_event logged (prohibited_attempt)`}</pre>
+        </div>
+        <div className="rounded-xl border border-hairline bg-white p-5">
+          <h3 className="font-medium text-ink">Approved call — real trace, sanitized</h3>
+          <pre className="mt-3 text-xs text-ink-muted whitespace-pre-wrap font-mono leading-relaxed">{`agent:      rollback_deployment (payments-api)
+gateway:    risk_tier=approval_required
+            → status=pending_approval
+
+human:      approved (manager session)
+gateway:    RE-CHECKED policy
+            role=manager · tool=rollback_deployment
+            tier=approval_required → ALLOWED
+
+execution:  rollback payments-api v1.9.1 → v1.9.0
+post-check: verify_service_health → healthy
+
+audit:      tool_calls row written (status: executed)
+            approval row: 06c3c87e… (executed)`}</pre>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Features() {
   return (
     <section className="max-w-6xl mx-auto px-6 py-20">
@@ -493,16 +663,27 @@ function ArchitectureNotes() {
   );
 }
 
-function WaitlistCTA() {
+function UnderTheHood() {
   return (
     <section className="max-w-6xl mx-auto px-6 py-20">
       <div className="rounded-xl border border-hairline bg-white p-8">
-        <h2 className="text-2xl font-medium text-ink tracking-headline">Join the private beta</h2>
-        <p className="mt-2 text-ink-muted">
-          Not ready for self-serve yet. Drop your email and we'll reach out when the next
-          cohort opens.
-        </p>
-        <WaitlistForm />
+        <h2 className="text-2xl font-medium text-ink tracking-headline">Under the hood</h2>
+        <ul className="mt-5 grid md:grid-cols-2 gap-x-8 gap-y-2 text-sm text-ink-muted list-disc list-inside">
+          <li>Multi-tenant Postgres with RLS keyed off <code className="kbd">tenant_memberships</code>.</li>
+          <li>ACL-filtered pgvector retrieval — restricted tags never enter the prompt.</li>
+          <li>Tool gateway with role gates, schema validation, and per-call policy decisions.</li>
+          <li>Risk tiers: 9 auto · 2 approval · 1 blocked — enforced server-side, not in the prompt.</li>
+          <li>Prompt-injection defense-in-depth: untrusted block, pattern detector, audit log.</li>
+          <li>Full audit traces for retrievals, tool calls, blocked events, latencies.</li>
+        </ul>
+        <div className="mt-6 flex flex-wrap gap-4 text-sm">
+          <a className="underline hover:text-ink" href="https://github.com/beme08/agent-gateway">
+            View source on GitHub →
+          </a>
+          <a className="underline hover:text-ink" href="#architecture">
+            See architecture →
+          </a>
+        </div>
       </div>
     </section>
   );
