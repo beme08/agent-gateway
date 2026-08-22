@@ -1,0 +1,22 @@
+name: Keep API warm (free-tier)
+
+on:
+  schedule:
+    # Render free tier sleeps after ~15 min idle; GitHub Actions cron
+    # minimum interval is 5 min, comfortably inside that window.
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API healthcheck
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" -m 120 \
+                https://governor-chk2.onrender.com/healthz || echo 000)
+          echo "healthz -> ${code}"
+          test "$code" = "200" || { echo "API unhealthy (${code})"; if [ "${code}" = "000" ]; then exit 1; fi; }

@@ -150,6 +150,12 @@ function Hero() {
               sanitized run summary
             </a>
           </p>
+          <p className="mt-2 text-xs text-ink-muted/80">
+            Reference prototype for portfolio purposes — not a live customer deployment. Runs on a
+            free-tier stack, so first responses after idle can take up to a minute while the API
+            wakes (subsequent turns are prompt). On faster frontier-based routing the same agent
+            answers in seconds; the gateway, guardrails, and audit chain are identical either way.
+          </p>
         </div>
         <div className="lg:col-span-5">
           <HeroIllustration />
